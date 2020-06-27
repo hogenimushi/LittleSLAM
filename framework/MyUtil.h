@@ -15,6 +15,7 @@
 #ifndef MY_UTIL_H_
 #define MY_UTIL_H_
 
+#include "eigensetting.h"
 #include <cmath>
 #include <Eigen/Core>
 #include <Eigen/Eigen>

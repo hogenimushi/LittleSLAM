@@ -57,10 +57,9 @@ int main(int argc, char *argv[]) {
 
   // logger setting
   auto console = spdlog::stdout_color_mt("slamlogger");
-  //spdlog::info("Hello, {}!","hogenimushi");
   auto logger = spdlog::get("slamlogger");
   
-  spdlog::set_level(spdlog::level::trace);
+  spdlog::set_level(spdlog::level::info);
   logger->info("SlamLauncher: startN={}, scanCheck={}, odometryOnly={}\n", startN, scanCheck, odometryOnly);
   logger->info("filename={}\n", filename);
 

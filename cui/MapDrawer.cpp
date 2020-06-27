@@ -43,7 +43,7 @@ void MapDrawer::drawTrajectoryGp(const vector<Pose2D> &poses) {
 //////////
 
 void MapDrawer::drawGp(const vector<LPoint2D> &lps, const vector<Pose2D> &poses, bool flush) {
-  #if SPDLOG_ACTIVE_LEVEL==SPDLOG_LEVEL_OFF
+  #if SPDLOG_ACTIVE_LEVEL==SPDLOG_LEVEL_INFO
   return;
   #endif
   

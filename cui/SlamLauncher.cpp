@@ -61,11 +61,11 @@ void SlamLauncher::run() {
     totalTimeDraw += (t2-t1);              // 描画時間の合計
     totalTimeRead += (t3-t2);              // ロード時間の合計
 
-    SPDLOG_LOGGER_INFO(logger, "---- SlamLauncher: cnt={} ends ----\n", cnt);
+    SPDLOG_LOGGER_INFO(logger, "---- SlamLauncher: cnt={} ends ----", cnt);
   }
   sreader.closeScanFile();
 
-  SPDLOG_LOGGER_INFO(logger, "Elapsed time: mapping=%g, drawing=%g, reading=%g\n", (totalTime-totalTimeDraw-totalTimeRead), totalTimeDraw, totalTimeRead);
+  SPDLOG_LOGGER_INFO(logger, "Elapsed time: mapping={}, drawing={}, reading={}\n", (totalTime-totalTimeDraw-totalTimeRead), totalTimeDraw, totalTimeRead);
   SPDLOG_LOGGER_INFO(logger, "SlamLauncher finished.\n");
 
   return;

@@ -23,14 +23,16 @@
 #include "Pose2D.h"
 #include "Scan2D.h"
 
+
+#include <cstdio>
 /////////
 
 class SensorDataReader
 {
 private:
   int angleOffset;                      // レーザスキャナとロボットの向きのオフセット
-  std::ifstream inFile;                 // データファイル
-
+  std::FILE *inFile;                 // データファイル
+  int scanres; // scanned result
 public:
   SensorDataReader() : angleOffset(180) {
   }
@@ -38,20 +40,22 @@ public:
   ~SensorDataReader() {
   }
 
+  const int nonEof = 1;
+  const int Eof = -1;
 ////////
 
   bool openScanFile(const char *filepath) {
-    inFile.open(filepath);
-    if (!inFile.is_open()) {
+    inFile = std::fopen(filepath,"r");
+    if (inFile==0) {
       std::cerr << "Error: cannot open file " << filepath << std::endl;
       return(false);
     }
-
+    scanres = nonEof;
     return(true);
   }
 
   void closeScanFile() {
-    inFile.close();
+    std::fclose(inFile);
   }
 
   void setAngleOffset(int o) {

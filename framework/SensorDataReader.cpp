@@ -19,7 +19,7 @@ using namespace std;
 // ファイルからスキャンを1個読む
 bool SensorDataReader::loadScan(size_t cnt, Scan2D &scan) {
   bool isScan=false;
-  while (!inFile.eof() && !isScan) {     // スキャンを読むまで続ける
+  while (!(scanres==Eof) && !isScan) {     // スキャンを読むまで続ける
     isScan = loadLaserScan(cnt, scan);
   }
 
@@ -33,21 +33,23 @@ bool SensorDataReader::loadScan(size_t cnt, Scan2D &scan) {
 
 // ファイルから項目1個を読む。読んだ項目がスキャンならtrueを返す。
 bool SensorDataReader::loadLaserScan(size_t cnt, Scan2D &scan) {
-  string type;                           // ファイル内の項目ラベル
-  inFile >> type;
-  if (type == "LASERSCAN") {             // スキャンの場合
+  char type[256];                           // ファイル内の項目ラベル
+  fscanf(inFile, "%s", type);
+  if (std::strcmp(type,"LASERSCAN")==0) {             // スキャンの場合
     scan.setSid(cnt);
 
     int sid, sec, nsec;
-    inFile >> sid >> sec >> nsec;        // これらは使わない
-
+    //    inFile >> sid >> sec >> nsec;        // これらは使わない
+    fscanf(inFile,"%d %d %d",&sid, &sec, &nsec);
+    
     vector<LPoint2D> lps;
     int pnum;                            // スキャン点数
-    inFile >> pnum;
+    fscanf(inFile,"%d",& pnum);
     lps.reserve(pnum);
     for (int i=0; i<pnum; i++) {
       float angle, range;
-      inFile >> angle >> range;          // スキャン点の方位と距離
+      fscanf(inFile,"%f %f",&angle,&range);
+      //inFile >> angle >> range;          // スキャン点の方位と距離
       angle += angleOffset;              // レーザスキャナの方向オフセットを考慮
       if (range <= Scan2D::MIN_SCAN_RANGE || range >= Scan2D::MAX_SCAN_RANGE) {
 //      if (range <= Scan2D::MIN_SCAN_RANGE || range >= 3.5) {         // わざと退化を起こしやすく
@@ -63,17 +65,23 @@ bool SensorDataReader::loadLaserScan(size_t cnt, Scan2D &scan) {
 
     // スキャンに対応するオドメトリ情報
     Pose2D &pose = scan.pose;
-    inFile >> pose.tx >> pose.ty;
+    fscanf(inFile,"%lf %lf",&(pose.tx), &(pose.ty));
     double th;
-    inFile >> th;
+    scanres = fscanf(inFile,"%lf",&th);
     pose.setAngle(RAD2DEG(th));          // オドメトリ角度はラジアンなので度にする
     pose.calRmat();
 
     return(true);
   }
   else {                                 // スキャン以外の場合
-    string line;
-    getline(inFile, line);               // 読み飛ばす
+
+    while(scanres!=Eof){
+      scanres=fgetc(inFile);
+      if((char)scanres=='\n') break;
+      if(scanres==Eof) break;
+    }
+    //    string line;
+    //    getline(inFile, line);               // 読み飛ばす
 
     return(false);
   }

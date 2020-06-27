@@ -13,6 +13,7 @@
  ****************************************************************************/
 
 #include "MapDrawer.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -42,6 +43,10 @@ void MapDrawer::drawTrajectoryGp(const vector<Pose2D> &poses) {
 //////////
 
 void MapDrawer::drawGp(const vector<LPoint2D> &lps, const vector<Pose2D> &poses, bool flush) {
+  #if SPDLOG_ACTIVE_LEVEL==SPDLOG_LEVEL_OFF
+  return;
+  #endif
+  
   printf("drawGp: lps.size=%lu\n", lps.size());     // 点数の確認用
 
   // gnuplot設定

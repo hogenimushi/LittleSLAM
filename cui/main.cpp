@@ -13,6 +13,8 @@
  ****************************************************************************/
 
 #include "SlamLauncher.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 int main(int argc, char *argv[]) {
   bool scanCheck=false;              // スキャン表示のみか
@@ -52,9 +54,15 @@ int main(int argc, char *argv[]) {
     printf("Error: invalid arguments.\n");
     return(1);
   }
+
+  // logger setting
+  auto console = spdlog::stdout_color_mt("slamlogger");
+  //spdlog::info("Hello, {}!","hogenimushi");
+  auto logger = spdlog::get("slamlogger");
   
-  printf("SlamLauncher: startN=%d, scanCheck=%d, odometryOnly=%d\n", startN, scanCheck, odometryOnly);
-  printf("filename=%s\n", filename);
+  spdlog::set_level(spdlog::level::trace);
+  logger->info("SlamLauncher: startN={}, scanCheck={}, odometryOnly={}\n", startN, scanCheck, odometryOnly);
+  logger->info("filename={}\n", filename);
 
   // ファイルを開く
   SlamLauncher sl;

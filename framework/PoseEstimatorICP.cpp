@@ -14,6 +14,7 @@
 
 #include <boost/timer.hpp>
 #include "PoseEstimatorICP.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -57,16 +58,18 @@ double PoseEstimatorICP::estimatePose(Pose2D &initPose, Pose2D &estPose){
 
   estPose = poseMin;
 
-  printf("finalError=%g, pnrate=%g\n", evmin, pnrate);
-  printf("estPose:  tx=%g, ty=%g, th=%g\n", pose.tx, pose.ty, pose.th);      // 確認用
+
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "finalError={}, pnrate={}", evmin, pnrate);
+  SPDLOG_LOGGER_DEBUG(logger, "estPose:  tx={}, ty={}, th={}", pose.tx, pose.ty, pose.th);      // 確認用
 
   double t1 = 1000*tim.elapsed();
-  printf("PoseEstimatorICP: t1=%g\n", t1);                 // 処理時間
+  SPDLOG_LOGGER_DEBUG(logger, "PoseEstimatorICP: t1={}", t1);                 // 処理時間
 
   if (evmin < HUGE_VAL)
     totalError += evmin;                                   // 誤差合計
   totalTime += t1;                                         // 処理時間合計
-  printf("totalError=%g, totalTime=%g\n", totalError, totalTime);    // 確認用
+  SPDLOG_LOGGER_DEBUG(logger, "totalError={}, totalTime={}", totalError, totalTime);    // 確認用
 
   return(evmin);
 }

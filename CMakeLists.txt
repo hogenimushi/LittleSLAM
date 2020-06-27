@@ -1,7 +1,5 @@
 project(LittleSLAM)
 
-cmake_minimum_required(VERSION 2.8)
-
 if(UNIX)
   include(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -15,8 +13,15 @@ if(UNIX)
   endif()
 endif()
 
+# spdlog 
+set(CMAKE_CXX_STANDARD 14)
+add_subdirectory(spdlog)
+find_package(spdlog)
+
 SET(CMAKE_BUILD_TYPE "Release")
 
 add_subdirectory(cui cui)
 add_subdirectory(framework framework)
 add_subdirectory(hook hook)
+
+

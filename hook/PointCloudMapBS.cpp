@@ -13,6 +13,7 @@
  ****************************************************************************/
 
 #include "PointCloudMapBS.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -34,7 +35,8 @@ void PointCloudMapBS::addPoints(const vector<LPoint2D> &lps) {
 
 // 全体地図生成。すでにできているので何もしない
 void PointCloudMapBS::makeGlobalMap(){
-  printf("globalMap.size=%lu\n", globalMap.size());   // 確認用
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger,"globalMap.size={}", globalMap.size());   // 確認用
 }
 
 // 局所地図生成。ダミー

@@ -13,6 +13,7 @@
  ****************************************************************************/
 
 #include "PoseGraph.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -81,28 +82,30 @@ PoseArc *PoseGraph::findArc(int srcNid, int dstNid) {
 
 // 確認用
 void PoseGraph::printNodes() {
-  printf("--- printNodes ---\n");
-  printf("nodes.size=%lu\n", nodes.size());
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "--- printNodes ---");
+  SPDLOG_LOGGER_DEBUG(logger, "nodes.size={}", nodes.size());
   for (size_t i=0; i<nodes.size(); i++) {
     PoseNode *node = nodes[i];
-    printf("i=%lu: nid=%d, tx=%g, ty=%g, th=%g\n", i, node->nid, node->pose.tx, node->pose.ty, node->pose.th);
+    SPDLOG_LOGGER_DEBUG(logger, "i={}: nid={}, tx={}, ty={}, th={}", i, node->nid, node->pose.tx, node->pose.ty, node->pose.th);
 
     for (size_t j=0; j<node->arcs.size(); j++) {
       PoseArc *a = node->arcs[j];
-      printf("arc j=%lu: srcId=%d, dstId=%d, src=%p, dst=%p\n", j, a->src->nid, a->dst->nid, a->src, a->dst);
+      SPDLOG_LOGGER_DEBUG(logger, "arc j={}: srcId={}, dstId={}, src={}, dst={}", j, a->src->nid, a->dst->nid, reinterpret_cast<uint64_t>(a->src), reinterpret_cast<uint64_t>(a->dst));
     }
   }
 }
 
 // 確認用
 void PoseGraph::printArcs() {
-  printf("--- printArcs ---\n");
-  printf("arcs.size=%lu\n", arcs.size());
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "--- printArcs ---");
+  SPDLOG_LOGGER_DEBUG(logger, "arcs.size={}", arcs.size());
   for (size_t j=0; j<arcs.size(); j++) {
     PoseArc *a = arcs[j];
     double dis = (a->src->pose.tx - a->dst->pose.tx)*(a->src->pose.tx - a->dst->pose.tx) + (a->src->pose.ty - a->dst->pose.ty)*(a->src->pose.ty - a->dst->pose.ty);
 
     Pose2D &rpose = a->relPose;
-    printf("j=%lu, srcId=%d, dstId=%d, tx=%g, ty=%g, th=%g\n", j, a->src->nid, a->dst->nid, rpose.tx, rpose.ty, rpose.th);
+    SPDLOG_LOGGER_DEBUG(logger, "j={}, srcId={}, dstId={}, tx={}, ty={}, th={}", j, a->src->nid, a->dst->nid, rpose.tx, rpose.ty, rpose.th);
   }
 }

@@ -13,6 +13,7 @@
  ****************************************************************************/
 
 #include "LoopDetectorSS.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -21,7 +22,8 @@ using namespace std;
 // ループ検出
 // 現在位置curPoseに近く、現在スキャンcurScanに形が一致する場所をロボット軌跡から見つけてポーズアークを張る。
 bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
-  printf("-- detectLoop -- \n");
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger,"-- detectLoop -- ");
 
   // 最も近い部分地図を探す
   double atd = pcmap->atd;                             // 現在の実際の累積走行距離
@@ -52,15 +54,16 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
     }
   }
 
-  printf("dmin=%g, radius=%g, imin=%lu, jmin=%lu\n", sqrt(dmin), radius, imin, jmin);  // 確認用
+  
+  SPDLOG_LOGGER_DEBUG(logger,"dmin={}, radius={}, imin={}, jmin={}", sqrt(dmin), radius, imin, jmin);  // 確認用
 
   if (dmin > radius*radius)                            // 前回訪問点までの距離が遠いとループ検出しない
     return(false);
 
   Submap &refSubmap = pcmap->submaps[imin];            // 最も近い部分地図を参照スキャンにする
   const Pose2D &initPose = poses[jmin];
-  printf("curPose:  tx=%g, ty=%g, th=%g\n", curPose.tx, curPose.ty, curPose.th);
-  printf("initPose: tx=%g, ty=%g, th=%g\n", initPose.tx, initPose.ty, initPose.th);
+  SPDLOG_LOGGER_DEBUG(logger, "curPose:  tx={}, ty={}, th={}", curPose.tx, curPose.ty, curPose.th);
+  SPDLOG_LOGGER_DEBUG(logger, "initPose: tx={}, ty={}, th={}", initPose.tx, initPose.ty, initPose.th);
 
   // 再訪点の位置を求める
   Pose2D revisitPose;
@@ -86,7 +89,7 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
     refScan.setPose(spose);
     LoopMatch lm(*curScan, refScan, info);
     loopMatches.emplace_back(lm);
-    printf("curId=%d, refId=%d\n", info.curId, info.refId);
+    SPDLOG_LOGGER_DEBUG(logger, "curId={}, refId={}", info.curId, info.refId);
   }
 
   return(flag);
@@ -96,9 +99,11 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
 
 // 前回訪問点(refId)を始点ノード、現在位置(curId)を終点ノードにして、ループアークを生成する。
 void LoopDetectorSS::makeLoopArc(LoopInfo &info) {
+
   if (info.arcked)                                             // infoのアークはすでに張ってある
     return;
   info.setArcked(true);
+  auto logger = spdlog::get("slamlogger");
 
   Pose2D srcPose = pcmap->poses[info.refId];                   // 前回訪問点の位置
   Pose2D dstPose(info.pose.tx, info.pose.ty, info.pose.th);    // 再訪点の位置
@@ -113,15 +118,15 @@ void LoopDetectorSS::makeLoopArc(LoopInfo &info) {
   pg->addArc(arc);                                                         // ループアーク登録
 
   // 確認用
-  printf("makeLoopArc: pose arc added\n");
-  printf("srcPose: tx=%g, ty=%g, th=%g\n", srcPose.tx, srcPose.ty, srcPose.th);
-  printf("dstPose: tx=%g, ty=%g, th=%g\n", dstPose.tx, dstPose.ty, dstPose.th);
-  printf("relPose: tx=%g, ty=%g, th=%g\n", relPose.tx, relPose.ty, relPose.th);
+  SPDLOG_LOGGER_DEBUG(logger,"makeLoopArc: pose arc added");
+  SPDLOG_LOGGER_DEBUG(logger,"srcPose: tx={}, ty={}, th={}", srcPose.tx, srcPose.ty, srcPose.th);
+  SPDLOG_LOGGER_DEBUG(logger,"dstPose: tx={}, ty={}, th={}", dstPose.tx, dstPose.ty, dstPose.th);
+  SPDLOG_LOGGER_DEBUG(logger,"relPose: tx={}, ty={}, th={}", relPose.tx, relPose.ty, relPose.th);
   PoseNode *src = pg->findNode(info.refId);
   PoseNode *dst = pg->findNode(info.curId);
   Pose2D relPose2;
   Pose2D::calRelativePose(dst->pose, src->pose, relPose2);
-  printf("relPose2: tx=%g, ty=%g, th=%g\n", relPose2.tx, relPose2.ty, relPose2.th);
+  SPDLOG_LOGGER_DEBUG(logger,"relPose2: tx={}, ty={}, th={}", relPose2.tx, relPose2.ty, relPose2.th);
 }
 
 //////////
@@ -131,7 +136,8 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
   dass->setRefBase(refLps);                              // データ対応づけ器に参照点群を設定
   cfunc->setEvlimit(0.2);                                // コスト関数の誤差閾値
 
-  printf("initPose: tx=%g, ty=%g, th=%g\n", initPose.tx, initPose.ty, initPose.th);       // 確認用
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "initPose: tx={}, ty={}, th={}", initPose.tx, initPose.ty, initPose.th);       // 確認用
 
   size_t usedNumMin = 50; 
 //  size_t usedNumMin = 100;
@@ -174,7 +180,7 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
       }
     }
   }
-  printf("candidates.size=%lu\n", candidates.size());                           // 確認用
+  SPDLOG_LOGGER_DEBUG(logger,"candidates.size={}", candidates.size());                           // 確認用
   if (candidates.size() == 0)
     return(false);
 
@@ -184,7 +190,7 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
   estim->setScanPair(curScan, refLps);                      // ICPにスキャン設定
   for (size_t i=0; i<candidates.size(); i++) {
     Pose2D p = candidates[i];                               // 候補位置
-    printf("score=%g\n", scores[i]);    // 確認用
+    SPDLOG_LOGGER_DEBUG(logger, "score={}", scores[i]);    // 確認用
     Pose2D estP;
     double score = estim->estimatePose(p, estP);            // ICPでマッチング位置を求める
     double pnrate = estim->getPnrate();                     // ICPでの点の対応率
@@ -192,7 +198,7 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
     if (score < smin && pnrate >= 0.9 && usedNum >= usedNumMin) {  // ループ検出は条件厳しく
       smin = score;
       best = estP;
-      printf("smin=%g, pnrate=%g, usedNum=%lu\n", smin, pnrate, usedNum);    // 確認用
+      SPDLOG_LOGGER_DEBUG(logger, "smin={}, pnrate={}, usedNum={}", smin, pnrate, usedNum);    // 確認用
     }
   }
 

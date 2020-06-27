@@ -14,6 +14,7 @@
 
 #include "SlamBackEnd.h"
 #include "P2oDriver2D.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -41,7 +42,8 @@ void SlamBackEnd::remakeMaps() {
     PoseNode *pnode = pnodes[i];              // ノードはロボット位置と1:1対応
     pnode->setPose(npose);                    // 各ノードの位置を更新
   }
-  printf("newPoses.size=%lu, nodes.size=%lu\n", newPoses.size(), pnodes.size());
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "newPoses.size={}, nodes.size={}", newPoses.size(), pnodes.size());
 
   // PointCloudMapの修正
   pcmap->remakeMaps(newPoses);

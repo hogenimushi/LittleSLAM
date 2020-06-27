@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 #include "ScanMatcher2D.h"
-
+#include "debug.h"
 using namespace std;
 
 /////////
@@ -22,7 +22,8 @@ using namespace std;
 bool ScanMatcher2D::matchScan(Scan2D &curScan) {
   ++cnt;
 
-  printf("----- ScanMatcher2D: cnt=%d start -----\n", cnt);
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "----- ScanMatcher2D: cnt={} start -----", cnt);
 
   // spresが設定されていれば、スキャン点間隔を均一化する
   if (spres != nullptr)
@@ -49,7 +50,7 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
 
   const Scan2D *refScan = rsm->makeRefScan();                    // 参照スキャンの生成
   estim->setScanPair(&curScan, refScan);                         // ICPにスキャンを設定
-  printf("curScan.size=%lu, refScan.size=%lu\n", curScan.lps.size(), refScan->lps.size());
+  SPDLOG_LOGGER_DEBUG(logger, "curScan.size={}, refScan.size={}", curScan.lps.size(), refScan->lps.size());
 
   Pose2D estPose;                                                // ICPによる推定位置
   double score = estim->estimatePose(predPose, estPose);         // 予測位置を初期値にしてICPを実行
@@ -60,7 +61,7 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
     successful = true;
   else 
     successful = false;
-  printf("score=%g, usedNum=%lu, successful=%d\n", score, usedNum, successful);
+  SPDLOG_LOGGER_DEBUG(logger, "score={}, usedNum={}, successful={}", score, usedNum, successful);
 
   if (dgcheck) {                         // 退化の対処をする場合
     if (successful) {
@@ -71,7 +72,7 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
       double ratio = pfu->fusePose(&curScan, estPose, odoMotion, lastPose, fusedPose, fusedCov);
       estPose = fusedPose;
       cov = fusedCov;
-      printf("ratio=%g. Pose fused.\n", ratio);     // ratioは退化度。確認用
+      SPDLOG_LOGGER_DEBUG(logger, "ratio={}. Pose fused.\n", ratio);     // ratioは退化度。確認用
 
       // 共分散を累積する
       Eigen::Matrix3d covL;               // 移動量の共分散
@@ -95,11 +96,11 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
 
   // 確認用
 //  printf("lastPose: tx=%g, ty=%g, th=%g\n", lastPose.tx, lastPose.ty, lastPose.th);
-  printf("predPose: tx=%g, ty=%g, th=%g\n", predPose.tx, predPose.ty, predPose.th);     // 確認用
-  printf("estPose: tx=%g, ty=%g, th=%g\n", estPose.tx, estPose.ty, estPose.th);
-  printf("cov: %g, %g, %g, %g\n", totalCov(0,0), totalCov(0,1), totalCov(1,0), totalCov(1,1));
-  printf("mcov: %g, %g, %g, %g\n", pfu->mcov(0,0), pfu->mcov(0,1), pfu->mcov(1,0), pfu->mcov(1,1));
-  printf("ecov: %g, %g, %g, %g\n", pfu->ecov(0,0), pfu->ecov(0,1), pfu->ecov(1,0), pfu->ecov(1,1));
+  SPDLOG_LOGGER_DEBUG(logger, "predPose: tx={}, ty={}, th={}", predPose.tx, predPose.ty, predPose.th);     // 確認用
+  SPDLOG_LOGGER_DEBUG(logger, "estPose: tx={}, ty={}, th={}", estPose.tx, estPose.ty, estPose.th);
+  SPDLOG_LOGGER_DEBUG(logger, "cov: {}, {}, {}, {}", totalCov(0,0), totalCov(0,1), totalCov(1,0), totalCov(1,1));
+  SPDLOG_LOGGER_DEBUG(logger, "mcov: {}, {}, {}, {}", pfu->mcov(0,0), pfu->mcov(0,1), pfu->mcov(1,0), pfu->mcov(1,1));
+  SPDLOG_LOGGER_DEBUG(logger, "ecov: {}, {}, {}, {}", pfu->ecov(0,0), pfu->ecov(0,1), pfu->ecov(1,0), pfu->ecov(1,1));
 
   // 共分散の保存（確認用）
 //  PoseCov pcov(estPose, cov);
@@ -112,7 +113,7 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
   Pose2D estMotion;                                                    // 推定移動量
   Pose2D::calRelativePose(estPose, lastPose, estMotion);
   atd += sqrt(estMotion.tx*estMotion.tx + estMotion.ty*estMotion.ty); 
-  printf("atd=%g\n", atd);
+  SPDLOG_LOGGER_DEBUG(logger, "atd={}", atd);
 
   return(successful);
 }
@@ -148,6 +149,7 @@ void ScanMatcher2D::growMap(const Scan2D &scan, const Pose2D &pose) {
   pcmap->setLastPose(pose);
   pcmap->setLastScan(scan);          // 参照スキャン用に保存
   pcmap->makeLocalMap();             // 局所地図を生成
-  
-  printf("ScanMatcher: estPose: tx=%g, ty=%g, th=%g\n", pose.tx, pose.ty, pose.th);    // 確認用
+
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "ScanMatcher: estPose: tx={}, ty={}, th={}", pose.tx, pose.ty, pose.th);    // 確認用
 }

@@ -13,6 +13,7 @@
  ****************************************************************************/
 
 #include "SlamFrontEnd.h"
+#include "debug.h" 
 
 using namespace std;
 
@@ -62,8 +63,8 @@ void SlamFrontEnd::process(Scan2D &scan) {
       sback.remakeMaps();                                // 地図やポーズグラフの修正
     }
   }
-
-  printf("pcmap.size=%lu\n", pcmap->globalMap.size());   // 確認用
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "pcmap.size={}", pcmap->globalMap.size());   // 確認用
 
   countLoopArcs();            // 確認用
 
@@ -83,7 +84,9 @@ bool SlamFrontEnd::makeOdometryArc(Pose2D &curPose, const Eigen::Matrix3d &fused
   Pose2D &lastPose = lastNode->pose;
   Pose2D relPose;
   Pose2D::calRelativePose(curPose, lastPose, relPose);   // 現在位置と直前位置の相対位置（移動量）の計算
-  printf("sfront: lastPose:  tx=%g, ty=%g, th=%g\n", lastPose.tx, lastPose.ty, lastPose.th);
+
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "sfront: lastPose:  tx={}, ty={}, th={}", lastPose.tx, lastPose.ty, lastPose.th);
 
   Eigen::Matrix3d cov;
   CovarianceCalculator::rotateCovariance(lastPose, fusedCov, cov, true);     // 移動量の共分散に変換
@@ -106,5 +109,6 @@ void SlamFrontEnd::countLoopArcs() {
     if (src->nid != dst->nid-1)             // オドメトリアークは始点と終点が連番になっている
       ++an;                                 // オドメトリアークでなければループアーク
   }
-  printf("loopArcs.size=%d\n", an);         // 確認用
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "loopArcs.size={}", an);         // 確認用
 }

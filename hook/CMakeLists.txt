@@ -43,7 +43,10 @@ include_directories(
     ${Boost_INCLUDE_DIR}
     ${EIGEN3_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../framework
+    ${CMAKE_CURRENT_SOURCE_DIR}/../spdlog/include
 )
+
+
 
 link_directories(
 )

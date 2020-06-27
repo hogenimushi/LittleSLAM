@@ -14,6 +14,7 @@
 
 #include "PointCloudMapLP.h"
 #include "NNGridTable.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -31,7 +32,9 @@ vector<LPoint2D> Submap::subsamplePoints(int nthre) {
 
   vector<LPoint2D> sps;
   nntab.makeCellPoints(nthre, sps);      // nthre個以上のセルの代表点をspsに入れる
-  printf("mps.size=%lu, sps.size=%lu\n", mps.size(), sps.size());
+
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "mps.size={}, sps.size={}", mps.size(), sps.size());
 
   return(sps);
 }
@@ -96,8 +99,9 @@ void PointCloudMapLP::makeGlobalMap(){
   }
 
   // 以下は確認用
-  printf("curSubmap.atd=%g, atd=%g, sps.size=%lu\n", curSubmap.atdS, atd, sps.size());
-  printf("submaps.size=%lu, globalMap.size=%lu\n", submaps.size(), globalMap.size());
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "curSubmap.atd={}, atd={}, sps.size={}", curSubmap.atdS, atd, sps.size());
+  SPDLOG_LOGGER_DEBUG(logger, "submaps.size={}, globalMap.size={}", submaps.size(), globalMap.size());
 }
 
 // 局所地図の生成
@@ -117,8 +121,8 @@ void PointCloudMapLP::makeLocalMap(){
   for (size_t i=0; i<sps.size(); i++) {
     localMap.emplace_back(sps[i]);
   }
-
-  printf("localMap.size=%lu\n", localMap.size());   // 確認用
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "localMap.size={}", localMap.size());   // 確認用
 }
 
 //////////

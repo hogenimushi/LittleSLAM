@@ -2,12 +2,22 @@ PROJECT(framework)
 
 cmake_minimum_required(VERSION 2.8)
 
+
 find_package(Boost REQUIRED)
 
+
 find_package(Eigen3)
+
 IF(NOT EIGEN3_INCLUDE_DIR)
   set(EIGEN3_INCLUDE_DIR $ENV{EIGEN3_ROOT_DIR})
 ENDIF() 
+
+include_directories(
+    ${Boost_INCLUDE_DIR}
+    ${EIGEN3_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../p2o
+    ${CMAKE_CURRENT_SOURCE_DIR}/../spdlog/include
+)
 
 SET(fw_HDRS
     MyUtil.h
@@ -53,11 +63,6 @@ SET(fw_SRCS
     LoopDetector.cpp
 )
 
-include_directories(
-    ${Boost_INCLUDE_DIR}
-    ${EIGEN3_INCLUDE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../p2o
-)
 
 link_directories(
 )

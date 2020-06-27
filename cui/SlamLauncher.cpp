@@ -14,6 +14,7 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/timer.hpp>
+#include "debug.h"
 #include "SlamLauncher.h"
 #include "ScanPointResampler.h"
 
@@ -33,6 +34,7 @@ void SlamLauncher::run() {
   Scan2D scan;
   bool eof = sreader.loadScan(cnt, scan);  // ファイルからスキャンを1個読み込む
   boost::timer tim;
+  auto logger = spdlog::get("slamlogger");
   while(!eof) {
     if (odometryOnly) {                      // オドメトリによる地図構築（SLAMより優先）
       if (cnt == 0) {
@@ -59,13 +61,14 @@ void SlamLauncher::run() {
     totalTimeDraw += (t2-t1);              // 描画時間の合計
     totalTimeRead += (t3-t2);              // ロード時間の合計
 
-    printf("---- SlamLauncher: cnt=%lu ends ----\n", cnt);
+    SPDLOG_LOGGER_INFO(logger, "---- SlamLauncher: cnt={} ends ----\n", cnt);
   }
   sreader.closeScanFile();
 
-  printf("Elapsed time: mapping=%g, drawing=%g, reading=%g\n", (totalTime-totalTimeDraw-totalTimeRead), totalTimeDraw, totalTimeRead);
-  printf("SlamLauncher finished.\n");
+  SPDLOG_LOGGER_INFO(logger, "Elapsed time: mapping=%g, drawing=%g, reading=%g\n", (totalTime-totalTimeDraw-totalTimeRead), totalTimeDraw, totalTimeRead);
+  SPDLOG_LOGGER_INFO(logger, "SlamLauncher finished.\n");
 
+  return;
   // 処理終了後も描画画面を残すためにsleepで無限ループにする。ctrl-Cで終了。
   while(true) {
 #ifdef _WIN32
@@ -105,12 +108,18 @@ void SlamLauncher::mapByOdometry(Scan2D *scan) {
   pcmap->addPoints(glps);
   pcmap->makeGlobalMap();
 
-  printf("Odom pose: tx=%g, ty=%g, th=%g\n", pose.tx, pose.ty, pose.th);
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "Odom pose: tx={}, ty={}, th={}", pose.tx, pose.ty, pose.th);
 }
 
 ////////// スキャン描画 ////////
 
 void SlamLauncher::showScans() {
+  #if SPDLOG_ACTIVE_LEVEL==SPDLOG_LEVEL_OFF
+  return;
+  #endif
+  auto logger = spdlog::get("slamlogger");
+  
   mdrawer.initGnuplot();
   mdrawer.setRange(6);                     // 描画範囲。スキャンが6m四方の場合
   mdrawer.setAspectRatio(-0.9);            // x軸とy軸の比（負にすると中身が一定）
@@ -130,17 +139,17 @@ void SlamLauncher::showScans() {
 #ifdef _WIN32
     Sleep(100);                            // WindowsではSleep
 #elif __linux__
-    usleep(100000);                        // Linuxではusleep
+    //    usleep(100000);                        // Linuxではusleep
 #endif
 
     mdrawer.drawScanGp(scan);              // スキャン描画
 
-    printf("---- scan num=%lu ----\n", cnt);
+    SPDLOG_LOGGER_DEBUG(logger,"---- scan num={} ----", cnt);
     eof = sreader.loadScan(cnt, scan);
     ++cnt;
   }
   sreader.closeScanFile();
-  printf("SlamLauncher finished.\n");
+  SPDLOG_LOGGER_INFO(logger,"SlamLauncher finished.");
 }
 
 //////// スキャン読み込み /////////

@@ -13,6 +13,7 @@
  ****************************************************************************/
 
 #include "ScanPointResampler.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -48,8 +49,8 @@ void ScanPointResampler::resamplePoints(Scan2D *scan) {
   }
 
   scan->setLps(newLps);
-
-  printf("lps.size=%lu, newLps.size=%lu\n", lps.size(), newLps.size());    // 確認用
+  auto logger = spdlog::get("slamlogger");
+  SPDLOG_LOGGER_DEBUG(logger, "lps.size={}, newLps.size={}", lps.size(), newLps.size());    // 確認用
 }
 
 bool ScanPointResampler::findInterpolatePoint(const LPoint2D &cp, const LPoint2D &pp, LPoint2D &np, bool &inserted) {

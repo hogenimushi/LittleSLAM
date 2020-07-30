@@ -1,5 +1,24 @@
 ﻿# LittleSLAM
 
+## 分析用に改造しています．
+
+### ログの出力
+LittleSLAM/framework/debug.h で，ログの出力コンパイル時に抑制できます．LittleSLAM/cui/main.cppのspdlog::set_level()も変更する必要があります．
+
+|ログの出力|SPDLOG_ACTIVE_LEVEL|set_level()|備考|
+|:--:|:---:|:--:|:---:|
+|する|SPDLOG_LEVEL_INFO|spdlog::level::info|プロットありだがsleepは消してある|
+|しない|SPDLOG_LEVEL_NONE|spdlog::level::none|プロットもしなくなる|
+
+## Eigenの設定
+eightnsetting.hで一括で設定できるようにしてあります．
+
+## データの読み込み
+iostream によるデータの読み込みが遅そうだったので，cstdioを使い書き直しました．効果は微妙です．
+
+## 現在の問題
+実行時間があまり安定していません．
+
 ## LittleSLAMについて
 
 LittleSLAMは、SLAM学習用プログラムです。

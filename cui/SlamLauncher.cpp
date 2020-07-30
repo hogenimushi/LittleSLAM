@@ -17,6 +17,7 @@
 #include "debug.h"
 #include "SlamLauncher.h"
 #include "ScanPointResampler.h"
+#include "performance_monitor.h"
 
 using namespace std;                       // C++標準ライブラリの名前空間を使う
 
@@ -35,6 +36,16 @@ void SlamLauncher::run() {
   bool eof = sreader.loadScan(cnt, scan);  // ファイルからスキャンを1個読み込む
   boost::timer tim;
   auto logger = spdlog::get("slamlogger");
+  PerformanceMonitor pmon;
+
+  // initialization of performance monitor
+  pmon.init("pmon.txt",".");
+  pmon.addTimer("matchScan");
+  pmon.addTimer("makeOdometryArc");
+  pmon.addTimer("makeGlobalMap");
+  pmon.addTimer("detectLoop");
+    
+  
   while(!eof) {
     if (odometryOnly) {                      // オドメトリによる地図構築（SLAMより優先）
       if (cnt == 0) {
@@ -44,7 +55,7 @@ void SlamLauncher::run() {
       mapByOdometry(&scan);
     }
     else 
-      sfront.process(scan);                // SLAMによる地図構築
+      sfront.process(scan,pmon);                // SLAMによる地図構築
 
     double t1 = 1000*tim.elapsed();
 
@@ -67,7 +78,7 @@ void SlamLauncher::run() {
 
   SPDLOG_LOGGER_INFO(logger, "Elapsed time: mapping={}, drawing={}, reading={}\n", (totalTime-totalTimeDraw-totalTimeRead), totalTimeDraw, totalTimeRead);
   SPDLOG_LOGGER_INFO(logger, "SlamLauncher finished.\n");
-
+  pmon.writeToFile();
   return;
   // 処理終了後も描画画面を残すためにsleepで無限ループにする。ctrl-Cで終了。
   while(true) {

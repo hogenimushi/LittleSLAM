@@ -22,6 +22,7 @@
 #include "PoseGraph.h"
 #include "LoopDetector.h"
 #include "SlamBackEnd.h"
+#include "performance_monitor.h"
 
 ////////
 
@@ -96,7 +97,7 @@ public:
 /////////
 
   void init();
-  void process(Scan2D &scan);
+  void process(Scan2D &scan,PerformanceMonitor &pmon);
   bool makeOdometryArc(Pose2D &curPose, const Eigen::Matrix3d &cov);
 
   void countLoopArcs();

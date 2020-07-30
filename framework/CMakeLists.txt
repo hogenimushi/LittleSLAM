@@ -42,6 +42,10 @@ SET(fw_HDRS
     SlamFrontEnd.h
     SlamBackEnd.h
     LoopDetector.h
+    debug.h
+    eigensetting.h
+    timer.h
+    performance_monitor.h
 )
 
 SET(fw_SRCS 
@@ -61,6 +65,7 @@ SET(fw_SRCS
     SlamFrontEnd.cpp
     SlamBackEnd.cpp
     LoopDetector.cpp
+    performance_monitor.cpp
 )
 
 

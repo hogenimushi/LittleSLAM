@@ -29,16 +29,19 @@ void SlamFrontEnd::init() {
 ///////////
 
 // 現在スキャンscanを処理する。
-void SlamFrontEnd::process(Scan2D &scan) {
+void SlamFrontEnd::process(Scan2D &scan, PerformanceMonitor &pmon) {
   if (cnt == 0) 
     init();                                       // 開始時に初期化
 
   // スキャンマッチング
+  pmon.resumeTimer("matchScan");
   smat->matchScan(scan);
-
+  pmon.stopTimer("matchScan");
+  
   Pose2D curPose = pcmap->getLastPose();          // これはスキャンマッチングで推定した現在のロボット位置
   
   // ポーズグラフにオドメトリアークを追加
+  pmon.resumeTimer("makeOdometryArc");
   if (cnt == 0) {                                 // 最初はノードを置くだけ。
     pg->addNode(curPose);
   }
@@ -46,7 +49,9 @@ void SlamFrontEnd::process(Scan2D &scan) {
     Eigen::Matrix3d &cov = smat->getCovariance();
     makeOdometryArc(curPose, cov);
   }
+  pmon.stopTimer("makeOdometryArc");
 
+  pmon.resumeTimer("makeGlobalMap");
   if (cnt%keyframeSkip==0) {                             // キーフレームのときだけ行う
     if (cnt == 0)
       pcmap->setNthre(1);                                // cnt=0のときは地図が小さいのでサンプリング多くする
@@ -54,8 +59,10 @@ void SlamFrontEnd::process(Scan2D &scan) {
       pcmap->setNthre(5);
     pcmap->makeGlobalMap();                              // 点群地図の全体地図を生成
   }
-
+  pmon.stopTimer("makeGlobalMap");
+  
   // ループ閉じ込み
+  pmon.resumeTimer("detectLoop");
   if (cnt > keyframeSkip && cnt%keyframeSkip==0) {       // キーフレームのときだけ行う
     bool flag = lpd->detectLoop(&scan, curPose, cnt);    // ループ検出を起動
     if (flag) {
@@ -63,11 +70,11 @@ void SlamFrontEnd::process(Scan2D &scan) {
       sback.remakeMaps();                                // 地図やポーズグラフの修正
     }
   }
+  pmon.stopTimer("detectLoop");
   auto logger = spdlog::get("slamlogger");
   SPDLOG_LOGGER_DEBUG(logger, "pcmap.size={}", pcmap->globalMap.size());   // 確認用
-
-  countLoopArcs();            // 確認用
-
+  //countLoopArcs();            // 確認用
+  //  pmon.writeToFile();
   ++cnt;
 }
 

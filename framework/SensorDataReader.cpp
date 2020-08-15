@@ -65,7 +65,9 @@ bool SensorDataReader::loadLaserScan(size_t cnt, Scan2D &scan) {
 
     // スキャンに対応するオドメトリ情報
     Pose2D &pose = scan.pose;
-    fscanf(inFile,"%lf %lf",&(pose.tx), &(pose.ty));
+    double tx, ty;
+    fscanf(inFile,"%lf %lf",&tx, &ty);
+    scan.pose.trans << tx,ty;
     double th;
     scanres = fscanf(inFile,"%lf",&th);
     pose.setAngle(RAD2DEG(th));          // オドメトリ角度はラジアンなので度にする

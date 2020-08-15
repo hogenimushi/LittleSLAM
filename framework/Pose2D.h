@@ -22,61 +22,77 @@
 
 struct Pose2D
 {
-  double tx;                           // 並進x
-  double ty;                           // 並進y
+  Eigen::Vector2d trans;
+  //double tx;                           // 並進x
+  //double ty;                           // 並進y
   double th;                           // 回転角(度)
-  double Rmat[2][2];                   // 姿勢の回転行列
+  Eigen::Matrix2d Rmat;
+  //double Rmat[2][2];                   // 姿勢の回転行列
 
-  Pose2D() : tx(0), ty(0), th(0) {
-    for(int i=0;i<2;i++) {
-      for(int j=0;j<2;j++) {
-        Rmat[i][j] = (i==j)? 1.0:0.0;
-      }
-    }
+  Pose2D() :  th(0) {
+    trans<< 0,0;
+    Rmat = Eigen::Matrix2d::Identity();
   }
 
   Pose2D(double tx, double ty, double th) {
-    this->tx = tx;
-    this->ty = ty;
+    this->trans << tx, ty;
     this->th = th;
     calRmat();
   }
 
+  Pose2D(Eigen::Vector2d _trans,double _th){
+    trans = _trans;
+    th = _th;
+  }
+  
   Pose2D(double mat[2][2], double tx, double ty, double th) {
     for(int i=0;i<2;i++) {
       for(int j=0;j<2;j++) {
-        Rmat[i][j] = mat[i][j];
+        Rmat(i,j) = mat[i][j];
       }
     }
-    this->tx = tx;
-    this->ty = ty;
+    this->trans << tx,ty;
     this->th = th;
   }
 
 /////////////////
 
   void reset() {
-    tx = ty = th = 0;
+    trans << 0,0;
+    th = 0;
     calRmat();
   }
 
   void setVal(double x, double y, double a) {
-    tx = x;
-    ty = y;
+    trans << x,y;
+    th = a;
+    calRmat();
+  }
+
+  void setVal(Eigen::Vector2d _trans, double a) {
+    trans = _trans;
     th = a;
     calRmat();
   }
 
   void calRmat() {
+    //    double a = DEG2RAD(th);
+    //    Rmat << cos(a), -sin(a),
+    //            sin(a), cos(a);
     double a = DEG2RAD(th);
-    Rmat[0][0] = Rmat[1][1] = cos(a);
-    Rmat[1][0] = sin(a);
-    Rmat[0][1] = -Rmat[1][0];
+    Rmat << cos(a), -sin(a),
+            sin(a), cos(a);
+    //    Rmat(0,0) = Rmat(1,1) = cos(a);
+    //    Rmat(1,0) = sin(a);
+    //    Rmat(0,1) = -Rmat(1,0);
   }
 
   void setTranslation(double tx, double ty) {
-    this->tx = tx;
-    this->ty = ty;
+    this->trans << tx, ty;
+  }
+
+  void setTranslation(Eigen::Vector2d _trans) {
+    this->trans = _trans;
   }
 
   void setAngle(double th) {

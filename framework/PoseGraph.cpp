@@ -31,6 +31,7 @@ PoseNode *PoseGraph::addNode(const Pose2D &pose) {
 void PoseGraph::addNode(PoseNode *n1, const Pose2D &pose) {
   n1->setNid((int)nodes.size());             // ノードID付与。ノードの通し番号と同じ
   n1->setPose(pose);                         // ロボット位置を設定
+
   nodes.push_back(n1);                       // nodesの最後に追加
 }
 
@@ -103,7 +104,10 @@ void PoseGraph::printArcs() {
   SPDLOG_LOGGER_DEBUG(logger, "arcs.size={}", arcs.size());
   for (size_t j=0; j<arcs.size(); j++) {
     PoseArc *a = arcs[j];
-    double dis = (a->src->pose.tx - a->dst->pose.tx)*(a->src->pose.tx - a->dst->pose.tx) + (a->src->pose.ty - a->dst->pose.ty)*(a->src->pose.ty - a->dst->pose.ty);
+    double dis = (a->src->pose.trans(0) - a->dst->pose.trans(0))*
+      (a->src->pose.trans(0) - a->dst->pose.trans(0)) +
+      (a->src->pose.trans(1) - a->dst->pose.trans(1))*
+      (a->src->pose.trans(1) - a->dst->pose.trans(1));
 
     Pose2D &rpose = a->relPose;
     SPDLOG_LOGGER_DEBUG(logger, "j={}, srcId={}, dstId={}, tx={}, ty={}, th={}", j, a->src->nid, a->dst->nid, rpose.tx, rpose.ty, rpose.th);

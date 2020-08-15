@@ -22,8 +22,8 @@ using namespace std;
 // ICPによるロボット位置の推定値の共分散covを求める。
 // 推定位置pose、現在スキャン点群curLps、参照スキャン点群refLps
 double CovarianceCalculator::calIcpCovariance(const Pose2D &pose, std::vector<const LPoint2D*> &curLps, std::vector<const LPoint2D*> &refLps, Eigen::Matrix3d &cov) {
-  double tx = pose.tx;
-  double ty = pose.ty;
+  double tx = pose.trans(0);
+  double ty = pose.trans(1);
   double th = pose.th;
   double a = DEG2RAD(th);
   vector<double> Jx;                                         // ヤコビ行列のxの列
@@ -79,9 +79,13 @@ double CovarianceCalculator::calIcpCovariance(const Pose2D &pose, std::vector<co
 
 // 垂直距離を用いた観測モデルの式
 double CovarianceCalculator::calPDistance(const LPoint2D *clp, const LPoint2D *rlp, double tx, double ty, double th) {
-  double x = cos(th)*clp->x - sin(th)*clp->y + tx;                     // clpを推定位置で座標変換
-  double y = sin(th)*clp->x + cos(th)*clp->y + ty;
-  double pdis = (x - rlp->x)*rlp->nx + (y - rlp->y)*rlp->ny;           // 座標変換した点からrlpへの垂直距離
+  Eigen::Matrix2d mat;
+  mat << cos(th),-sin(th),sin(th),cos(th);
+  Eigen::Vector2d p = mat*clp->pos + Eigen::Vector2d(tx,ty);
+  double pdis = (p-rlp->pos).dot(rlp->norm);
+  //  double x = cos(th)*clp->pos(0) - sin(th)*clp->pos(1) + tx;        // clpを推定位置で座標変換
+  //  double y = sin(th)*clp->pos(0) + cos(th)*clp->pos(1) + ty;
+  //  double pdis = (x - rlp->pos(0))*rlp->norm(0) + (y - rlp->pos(1))*rlp->norm(1);           // 座標変換した点からrlpへの垂直距離
 
   return(pdis);
 }
@@ -89,7 +93,7 @@ double CovarianceCalculator::calPDistance(const LPoint2D *clp, const LPoint2D *r
 ///////// 運動モデルの計算 /////////
 
 void CovarianceCalculator::calMotionCovarianceSimple(const Pose2D &motion, double dT, Eigen::Matrix3d &cov) {
-  double dis = sqrt(motion.tx*motion.tx + motion.ty*motion.ty);   // 移動距離
+  double dis = sqrt(motion.trans(0)*motion.trans(0) + motion.trans(1)*motion.trans(1));   // 移動距離
   double vt = dis/dT;                    // 並進速度[m/s]
   double wt = DEG2RAD(motion.th)/dT;     // 角速度[rad/s]
   double vthre = 0.02;                   // vtの下限値。同期ずれで0になる場合の対処
@@ -210,8 +214,8 @@ double CovarianceCalculator::calEigen(const Eigen::Matrix3d &cov, double *vals, 
 // 共分散行列の累積。前回位置の共分散行列prevCovに移動量の共分散行列mcovを加えて、現在位置の共分散行列curCovを求める。
 void CovarianceCalculator::accumulateCovariance(const Pose2D &curPose, const Pose2D &prevPose, const Eigen::Matrix3d &prevCov, const Eigen::Matrix3d &mcov, Eigen::Matrix3d &curCov) {
   Eigen::Matrix3d J1, J2;
-  J1 << 1, 0, -(curPose.ty - prevPose.ty),
-        0, 1, curPose.tx - prevPose.tx,
+  J1 << 1, 0, -(curPose.trans(1) - prevPose.trans(1)),
+        0, 1, curPose.trans(0) - prevPose.trans(0),
         0, 0, 1;
 
   double prevCos = cos(DEG2RAD(prevPose.th));

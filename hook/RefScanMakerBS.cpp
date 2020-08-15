@@ -21,9 +21,11 @@ const Scan2D *RefScanMakerBS::makeRefScan() {
   refLps.clear();
 
   Pose2D lastPose = pcmap->getLastPose();         // 点群地図に保存した最後の推定位置
-  double (*R)[2] = lastPose.Rmat;
-  double tx = lastPose.tx;
-  double ty = lastPose.ty;
+  Eigen::Matrix2d R = lastPose.Rmat;
+
+  Eigen::Vector2d trans = lastPose.trans;
+  //  double tx = lastPose.trans(0);
+  //  double ty = lastPose.trans(1);
 
   // 点群地図に保存した最後のスキャンを参照スキャンにする
   const vector<LPoint2D> &lps = pcmap->lastScan.lps;
@@ -32,10 +34,12 @@ const Scan2D *RefScanMakerBS::makeRefScan() {
 
     // スキャンはロボット座標系なので、地図座標系に変換
     LPoint2D rp;
-    rp.x = R[0][0]*mp.x + R[0][1]*mp.y + tx;      // 点の位置
-    rp.y = R[1][0]*mp.x + R[1][1]*mp.y + ty;
-    rp.nx = R[0][0]*mp.nx + R[0][1]*mp.ny;        // 法線ベクトル
-    rp.ny = R[1][0]*mp.nx + R[1][1]*mp.ny;
+    //    rp.pos(0) = R(0,0)*mp.pos(0) + R(0,1)*mp.pos(1) + tx;      // 点の位置
+    //    rp.pos(1) = R(1,0)*mp.pos(0) + R(1,1)*mp.pos(1) + ty;
+    //    rp.norm(0)= R(0,0)*mp.norm(0)+ R(0,1)*mp.norm(1);        // 法線ベクトル
+    //    rp.norm(1)= R(1,0)*mp.norm(0)+ R(1,1)*mp.norm(1);
+    rp.pos = R*mp.pos + trans;
+    rp.norm = R*mp.norm;
     refLps.emplace_back(rp);
   }
 

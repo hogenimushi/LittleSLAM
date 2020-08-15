@@ -46,10 +46,10 @@ void PointCloudMapLP::addPose(const Pose2D &p) {
   // 累積走行距離(atd)の計算
   if (poses.size() > 0) {
     Pose2D pp = poses.back();
-    atd += sqrt((p.tx - pp.tx)*(p.tx - pp.tx) + (p.ty - pp.ty)*(p.ty - pp.ty));
+    atd += (p.trans - pp.trans).norm();
   }
   else {
-    atd += sqrt(p.tx*p.tx + p.ty*p.ty);
+    atd += p.trans.norm();
   }
 
   poses.emplace_back(p);
@@ -142,17 +142,16 @@ void PointCloudMapLP::remakeMaps(const vector<Pose2D> &newPoses){
 
       const Pose2D &oldPose = poses[idx];              // mpに対応する古いロボット位置
       const Pose2D &newPose = newPoses[idx];           // mpに対応する新しいロボット位置
-      const double (*R1)[2] = oldPose.Rmat;
-      const double (*R2)[2] = newPose.Rmat;
+      const Eigen::Matrix2d R1 = oldPose.Rmat;
+      const Eigen::Matrix2d R2 = newPose.Rmat;
       LPoint2D lp1 = oldPose.relativePoint(mp);        // oldPoseでmpをセンサ座標系に変換
       LPoint2D lp2 = newPose.globalPoint(lp1);         // newPoseでポーズ調整後の地図座標系に変換
-      mp.x = lp2.x;
-      mp.y = lp2.y;
-      double nx = R1[0][0]*mp.nx + R1[1][0]*mp.ny;     // 法線ベクトルもoldPoseでセンサ座標系に変換
-      double ny = R1[0][1]*mp.nx + R1[1][1]*mp.ny;
-      double nx2 = R2[0][0]*nx + R2[0][1]*ny;          // 法線ベクトルもnewPoseでポーズ調整後の地図座標系に変換
-      double ny2 = R2[1][0]*nx + R2[1][1]*ny;
-      mp.setNormal(nx2, ny2);
+      mp.pos = lp2.pos;
+      // 法線ベクトルもoldPoseでセンサ座標系に変換
+      // 法線ベクトルもnewPoseでポーズ調整後の地図座標系に変換
+      Eigen::Vector2d nnorm = R2*R1.transpose()*mp.norm;
+      
+      mp.setNormal(nnorm);
     }
   }
 

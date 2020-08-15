@@ -37,14 +37,18 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
     const Submap &submap = submaps[i];                 // i番目の部分地図
     for (size_t j=submap.cntS; j<=submap.cntE; j++) {  // 部分地図の各ロボット位置について
       Pose2D p = poses[j];                             // ロボット位置
-      atdR += sqrt((p.tx - prevP.tx)*(p.tx - prevP.tx) + (p.ty - prevP.ty)*(p.ty - prevP.ty));
+      //      atdR += sqrt((p.trans(0) - prevP.trans(0))*(p.trans(0) - prevP.trans(0)) +
+      //		   (p.trans(1) - prevP.trans(1))*(p.trans(1) - prevP.trans(1)));
+      atdR += (p.trans - prevP.trans).norm();
       if (atd-atdR < atdthre) {                        // 現在位置までの走行距離が短いとループとみなさず、もうやめる
         i = submaps.size();                            // これで外側のループからも抜ける
         break;
       }
       prevP = p;
 
-      double d = (curPose.tx - p.tx)*(curPose.tx - p.tx) + (curPose.ty - p.ty)*(curPose.ty - p.ty);
+      //      double d = (curPose.trans(0) - p.trans(0))*(curPose.trans(0) - p.trans(0)) +
+      //	(curPose.trans(1) - p.trans(1))*(curPose.trans(1) - p.trans(1));
+      double d = (curPose.trans - p.trans).norm();
       if (d < dmin) {                                  // 現在位置とpとの距離がこれまでの最小か
         dmin = d;
         imin = i;                                      // 候補となる部分地図のインデックス
@@ -62,8 +66,8 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
 
   Submap &refSubmap = pcmap->submaps[imin];            // 最も近い部分地図を参照スキャンにする
   const Pose2D &initPose = poses[jmin];
-  SPDLOG_LOGGER_DEBUG(logger, "curPose:  tx={}, ty={}, th={}", curPose.tx, curPose.ty, curPose.th);
-  SPDLOG_LOGGER_DEBUG(logger, "initPose: tx={}, ty={}, th={}", initPose.tx, initPose.ty, initPose.th);
+  SPDLOG_LOGGER_DEBUG(logger, "curPose:  tx={}, ty={}, th={}", curPose.trans(0), curPose.trans(1), curPose.th);
+  SPDLOG_LOGGER_DEBUG(logger, "initPose: tx={}, ty={}, th={}", initPose.trans(0), initPose.trans(1), initPose.th);
 
   // 再訪点の位置を求める
   Pose2D revisitPose;
@@ -106,7 +110,7 @@ void LoopDetectorSS::makeLoopArc(LoopInfo &info) {
   auto logger = spdlog::get("slamlogger");
 
   Pose2D srcPose = pcmap->poses[info.refId];                   // 前回訪問点の位置
-  Pose2D dstPose(info.pose.tx, info.pose.ty, info.pose.th);    // 再訪点の位置
+  Pose2D dstPose(info.pose.trans(0), info.pose.trans(1), info.pose.th);    // 再訪点の位置
   Pose2D relPose;
   Pose2D::calRelativePose(dstPose, srcPose, relPose);          // ループアークの拘束
 
@@ -154,9 +158,9 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
   vector<double> scores;
   vector<Pose2D> candidates;                             // スコアのよい候補位置
   for (double dy=-rangeT; dy<=rangeT; dy+=dd) {          // 並進yの探索繰り返し
-    double y = initPose.ty + dy;                         // 初期位置に変位分dyを加える
+    double y = initPose.trans(1) + dy;                         // 初期位置に変位分dyを加える
     for (double dx=-rangeT; dx<=rangeT; dx+=dd) {        // 並進xの探索繰り返し
-      double x = initPose.tx + dx;                       // 初期位置に変位分dxを加える
+      double x = initPose.trans(0) + dx;                       // 初期位置に変位分dxを加える
       for (double dth=-rangeA; dth<=rangeA; dth+=da) {   // 回転の探索繰り返し
         double th = MyUtil::add(initPose.th, dth);       // 初期位置に変位分dthを加える
         Pose2D pose(x, y, th);

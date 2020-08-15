@@ -44,7 +44,7 @@ void MapDrawer::drawTrajectoryGp(const vector<Pose2D> &poses) {
 
 void MapDrawer::drawGp(const vector<LPoint2D> &lps, const vector<Pose2D> &poses, bool flush) {
   #if SPDLOG_ACTIVE_LEVEL==SPDLOG_LEVEL_INFO
-  return;
+  //  return;
   #endif
   
   printf("drawGp: lps.size=%lu\n", lps.size());     // 点数の確認用
@@ -58,7 +58,7 @@ void MapDrawer::drawGp(const vector<LPoint2D> &lps, const vector<Pose2D> &poses,
   int step1=1;                  // 点の間引き間隔。描画が重いとき大きくする
   for (size_t i=0; i<lps.size(); i+=step1) {
     const LPoint2D &lp = lps[i];
-    fprintf(gp, "%lf %lf\n", lp.x, lp.y);    // 点の描画
+    fprintf(gp, "%lf %lf\n", lp.pos(0), lp.pos(1));    // 点の描画
   }
   fprintf(gp, "e\n");
 
@@ -66,10 +66,10 @@ void MapDrawer::drawGp(const vector<LPoint2D> &lps, const vector<Pose2D> &poses,
   int step2=10;                      // ロボット位置の間引き間隔
   for (size_t i=0; i<poses.size(); i+=step2) {
     const Pose2D &pose = poses[i];
-    double cx = pose.tx;             // 並進位置
-    double cy = pose.ty;
-    double cs = pose.Rmat[0][0];     // 回転角によるcos
-    double sn = pose.Rmat[1][0];     // 回転角によるsin
+    double cx = pose.trans(0);             // 並進位置
+    double cy = pose.trans(1);
+    double cs = pose.Rmat(0,0);     // 回転角によるcos
+    double sn = pose.Rmat(1,0);     // 回転角によるsin
 
     // ロボット座標系の位置と向きを描く
     double dd = 0.4;

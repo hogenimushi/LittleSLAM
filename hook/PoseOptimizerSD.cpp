@@ -21,8 +21,8 @@ using namespace std;
 // データ対応づけ固定のもと、初期値initPoseを与えてロボット位置の推定値estPoseを求める
 double PoseOptimizerSD::optimizePose(Pose2D &initPose, Pose2D &estPose) {
   double th = initPose.th;
-  double tx = initPose.tx;
-  double ty = initPose.ty;
+  double tx = initPose.trans(0);
+  double ty = initPose.trans(1);
   double txmin=tx, tymin=ty, thmin=th;         // コスト最小の解
   double evmin = HUGE_VAL;                     // コストの最小値
   double evold = evmin;                        // 1つ前のコスト値。収束判定に使う

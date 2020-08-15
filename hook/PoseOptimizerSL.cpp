@@ -22,8 +22,8 @@ using namespace std;
 // データ対応づけ固定のもと、初期値initPoseを与えてロボット位置の推定値estPoseを求める
 double PoseOptimizerSL::optimizePose(Pose2D &initPose, Pose2D &estPose) {
   double th = initPose.th;
-  double tx = initPose.tx;
-  double ty = initPose.ty;
+  double tx = initPose.trans(0);
+  double ty = initPose.trans(1);
   double txmin=tx, tymin=ty, thmin=th;           // コスト最小の解
   double evmin = HUGE_VAL;                       // コストの最小値
   double evold = evmin;                          // 1つ前のコスト値。収束判定に使う
@@ -42,10 +42,10 @@ double PoseOptimizerSL::optimizePose(Pose2D &initPose, Pose2D &estPose) {
     tx += dx;  ty += dy;  th += dth;              // いったん次の探索位置を決める
 
     // ブレント法による直線探索
-    pose.tx = tx;  pose.ty = ty;  pose.th = th;   // 探索開始点
-    dir.tx = dx;   dir.ty = dy;   dir.th = dth;   // 探索方向
+    pose.trans(0) = tx;  pose.trans(1) = ty;  pose.th = th;   // 探索開始点
+    dir.trans(0) = dx;   dir.trans(1) = dy;   dir.th = dth;   // 探索方向
     search(ev, pose, dir);                        // 直線探索実行
-    tx = pose.tx;  ty = pose.ty;  th = pose.th;   // 直線探索で求めた位置
+    tx = pose.trans(0);  ty = pose.trans(1);  th = pose.th;   // 直線探索で求めた位置
 
     ev = cfunc->calValue(tx, ty, th);             // 求めた位置でコスト計算
 
@@ -83,8 +83,8 @@ double PoseOptimizerSL::search(double ev0, Pose2D &pose, Pose2D &dp) {
   double t = result.first;                           // 求めるステップ幅
   double v = result.second;                          // 求める最小値
 
-  pose.tx = pose.tx + t*dp.tx;                       // 求める最小解をposeに格納
-  pose.ty = pose.ty + t*dp.ty;
+  pose.trans(0) = pose.trans(0) + t*dp.trans(0);                       // 求める最小解をposeに格納
+  pose.trans(1) = pose.trans(1) + t*dp.trans(1);
   pose.th = MyUtil::add(pose.th, t*dp.th);
 
   return(v);
@@ -92,8 +92,8 @@ double PoseOptimizerSL::search(double ev0, Pose2D &pose, Pose2D &dp) {
 
 // 直線探索の目的関数。ttがステップ幅
 double PoseOptimizerSL::objFunc(double tt, Pose2D &pose, Pose2D &dp) {
-  double tx = pose.tx + tt*dp.tx;                     // poseからdp方向にttだけ進む
-  double ty = pose.ty + tt*dp.ty;
+  double tx = pose.trans(0) + tt*dp.trans(0);                     // poseからdp方向にttだけ進む
+  double ty = pose.trans(1) + tt*dp.trans(1);
   double th = MyUtil::add(pose.th, tt*dp.th);
   double v = cfunc->calValue(tx, ty, th);             // コスト関数値
 

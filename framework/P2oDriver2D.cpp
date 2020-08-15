@@ -29,7 +29,7 @@ void P2oDriver2D::doP2o( PoseGraph &pg, vector<Pose2D> &newPoses, int N) {
   for (size_t i=0; i<nodes.size(); i++) {
     PoseNode *node = nodes[i];
     Pose2D pose = node->pose;                                  // ノードの位置
-    pnodes.push_back(p2o::Pose2D(pose.tx, pose.ty, DEG2RAD(pose.th)));   // 位置だけ入れる
+    pnodes.push_back(p2o::Pose2D(pose.trans(0), pose.trans(1), DEG2RAD(pose.th)));   // 位置だけ入れる
   }
 
 
@@ -43,10 +43,8 @@ void P2oDriver2D::doP2o( PoseGraph &pg, vector<Pose2D> &newPoses, int N) {
     p2o::Con2D con;
     con.id1 = src->nid;
     con.id2 = dst->nid;
-    con.t = p2o::Pose2D(relPose.tx, relPose.ty, DEG2RAD(relPose.th));
-    for (int k=0; k<3; k++)
-      for (int m=0; m<3; m++)
-        con.info(k, m) = arc->inf(k,m);
+    con.t = p2o::Pose2D(relPose.trans(0), relPose.trans(1), DEG2RAD(relPose.th));
+    con.info=arc->inf;
     pcons.push_back(con);
   }
 

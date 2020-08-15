@@ -41,6 +41,7 @@ public:
   
   void analysePoints(std::vector<LPoint2D> &lps);
   bool calNormal(int idx, const std::vector<LPoint2D> &lps, int dir, Vector2D &normal);
+  bool calNormal(int idx, const std::vector<LPoint2D> &lps, int dir, Eigen::Vector2d &normal);
 
 };
 

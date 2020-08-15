@@ -112,7 +112,7 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
   // 累積走行距離の計算（確認用）
   Pose2D estMotion;                                                    // 推定移動量
   Pose2D::calRelativePose(estPose, lastPose, estMotion);
-  atd += sqrt(estMotion.tx*estMotion.tx + estMotion.ty*estMotion.ty); 
+  atd += sqrt(estMotion.trans(0)*estMotion.trans(0) + estMotion.trans(1)*estMotion.trans(1)); 
   SPDLOG_LOGGER_DEBUG(logger, "atd={}", atd);
 
   return(successful);
@@ -123,22 +123,22 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
 // 現在スキャンを追加して、地図を成長させる
 void ScanMatcher2D::growMap(const Scan2D &scan, const Pose2D &pose) {
   const vector<LPoint2D> &lps = scan.lps;                // スキャン点群(ロボット座標系)
-  const double (*R)[2] = pose.Rmat;                      // 推定したロボット位置
-  double tx = pose.tx;
-  double ty = pose.ty;
+  const Eigen::Matrix2d    R = pose.Rmat;                      // 推定したロボット位置
+
+  Eigen::Vector2d trans = pose.trans;
+  //  double tx = pose.trans(0);
+  //  double ty = pose.trans(1);
 
   vector<LPoint2D> scanG;                                // 地図座標系での点群
   for(size_t i=0; i<lps.size(); i++) {
     const LPoint2D &lp = lps[i];
     if (lp.type == ISOLATE)                              // 孤立点（法線なし）は除外
       continue;
-    double x = R[0][0]*lp.x + R[0][1]*lp.y + tx;         // 地図座標系に変換
-    double y = R[1][0]*lp.x + R[1][1]*lp.y + ty;
-    double nx = R[0][0]*lp.nx + R[0][1]*lp.ny;           // 法線ベクトルも変換
-    double ny = R[1][0]*lp.nx + R[1][1]*lp.ny;
+    Eigen::Vector2d resp = R*lp.pos+trans;         // 地図座標系に変換
+    Eigen::Vector2d resn = R*lp.norm;           // 法線ベクトルも変換
+    LPoint2D mlp(cnt, resp);                                   // 新規に点を生成
+    mlp.setNormal(resn);
 
-    LPoint2D mlp(cnt, x, y);                             // 新規に点を生成
-    mlp.setNormal(nx, ny);
     mlp.setType(lp.type);
     scanG.emplace_back(mlp);                             // mlpはvector内にコピーされる
   }

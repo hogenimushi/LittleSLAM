@@ -29,14 +29,12 @@ double CostFunctionPD::calValue(double tx, double ty, double th) {
 
     if (rlp->type != LINE)                       // 直線上の点でなければ使わない
       continue;
- 
-    double cx = clp->x;
-    double cy = clp->y;
-    double x = cos(a)*cx - sin(a)*cy + tx;       // clpを参照スキャンの座標系に変換
-    double y = sin(a)*cx + cos(a)*cy + ty;
-
-    double pdis = (x - rlp->x)*rlp->nx + (y - rlp->y)*rlp->ny;         // 垂直距離
-
+    Eigen::Vector2d cp = clp->pos;
+    Eigen::Matrix2d mat;
+    mat << cos(a), -sin(a), sin(a), cos(a);
+    Eigen::Vector2d p  = mat*cp + Eigen::Vector2d(tx,ty);      // clpを参照スキャンの座標系に変換
+    double pdis = (p - rlp->pos).dot(rlp->norm);        // 垂直距離
+    
     double er = pdis*pdis;
     if (er <= evlimit*evlimit)
       ++pn;                                      // 誤差が小さい点の数

@@ -35,7 +35,9 @@ double DataAssociatorLS::findCorrespondence(const Scan2D *curScan, const Pose2D 
     const LPoint2D *rlpmin = nullptr;               // 最も近い点
     for (size_t j=0; j<baseLps.size(); j++) {
       const LPoint2D *rlp = baseLps[j];             // 参照スキャン点
-      double d = (glp.x - rlp->x)*(glp.x - rlp->x) + (glp.y - rlp->y)*(glp.y - rlp->y);
+      //      double d = (glp.pos(0) - rlp->pos(0))*(glp.pos(0) - rlp->pos(0)) +
+      //	(glp.pos(1) - rlp->pos(1))*(glp.pos(1) - rlp->pos(1));
+      double d = (glp.pos-rlp->pos).norm();
       if (d <= dthre*dthre && d < dmin) {           // dthre内で距離が最小となる点を保存
         dmin = d;
         rlpmin = rlp;

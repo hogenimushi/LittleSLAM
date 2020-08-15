@@ -34,8 +34,8 @@ double PoseFuser::fusePose(Scan2D *curScan, const Pose2D &estPose, const Pose2D 
   CovarianceCalculator::rotateCovariance(estPose, mcovL, mcov);                    // 現在位置estPoseで回転させて、地図座標系での共分散mcovを得る
 
   // ecov, mcov, covともに、lastPoseを原点とした局所座標系での値
-  Eigen::Vector3d mu1(estPose.tx, estPose.ty, DEG2RAD(estPose.th));                // ICPによる推定値
-  Eigen::Vector3d mu2(predPose.tx, predPose.ty, DEG2RAD(predPose.th));             // オドメトリによる推定値
+  Eigen::Vector3d mu1(estPose.trans(0), estPose.trans(1), DEG2RAD(estPose.th));                // ICPによる推定値
+  Eigen::Vector3d mu2(predPose.trans(0), predPose.trans(1), DEG2RAD(predPose.th));             // オドメトリによる推定値
   Eigen::Vector3d mu;
   fuse(mu1, ecov, mu2, mcov, mu, fusedCov);                                        // 2つの正規分布の融合
 

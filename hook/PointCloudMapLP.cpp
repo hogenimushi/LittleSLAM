@@ -23,14 +23,14 @@ double PointCloudMapLP::atdThre = 10;
 ///////////
 
 // 格子テーブルを用いて、部分地図の代表点を得る
-vector<LPoint2D> Submap::subsamplePoints(int nthre) {
+vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> Submap::subsamplePoints(int nthre) {
   NNGridTable nntab;                     // 格子テーブル
   for (size_t i=0; i<mps.size(); i++) {
     LPoint2D &lp = mps[i];
     nntab.addPoint(&lp);                 // 全点を登録
   }
 
-  vector<LPoint2D> sps;
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> sps;
   nntab.makeCellPoints(nthre, sps);      // nthre個以上のセルの代表点をspsに入れる
 
   auto logger = spdlog::get("slamlogger");
@@ -56,7 +56,7 @@ void PointCloudMapLP::addPose(const Pose2D &p) {
 }
 
 // スキャン点の追加
-void PointCloudMapLP::addPoints(const vector<LPoint2D> &lps) {
+void PointCloudMapLP::addPoints(const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) {
   Submap &curSubmap = submaps.back();              // 現在の部分地図
   if (atd - curSubmap.atdS >= atdThre ) {          // 累積走行距離が閾値を超えたら新しい部分地図に変える
     size_t size = poses.size();
@@ -79,7 +79,7 @@ void PointCloudMapLP::makeGlobalMap(){
   // 現在以外のすでに確定した部分地図から点を集める
   for (size_t i=0; i<submaps.size()-1; i++) {
     Submap &submap = submaps[i];                   // 部分地図
-    vector<LPoint2D> &mps = submap.mps;            // 部分地図の点群。代表点だけになっている
+    vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &mps = submap.mps;            // 部分地図の点群。代表点だけになっている
     for (size_t j=0; j<mps.size(); j++) {
       globalMap.emplace_back(mps[j]);              // 全体地図には全点入れる
     }
@@ -92,7 +92,7 @@ void PointCloudMapLP::makeGlobalMap(){
 
   // 現在の部分地図の代表点を全体地図と局所地図に入れる
   Submap &curSubmap = submaps.back();              // 現在の部分地図
-  vector<LPoint2D> sps = curSubmap.subsamplePoints(nthre);  // 代表点を得る
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> sps = curSubmap.subsamplePoints(nthre);  // 代表点を得る
   for (size_t i=0; i<sps.size(); i++) {
     globalMap.emplace_back(sps[i]);
     localMap.emplace_back(sps[i]);
@@ -109,7 +109,7 @@ void PointCloudMapLP::makeLocalMap(){
   localMap.clear();                                // 初期化
   if (submaps.size() >= 2) {
     Submap &submap = submaps[submaps.size()-2];    // 直前の部分地図だけ使う
-    vector<LPoint2D> &mps = submap.mps;            // 部分地図の点群。代表点だけになっている
+    vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &mps = submap.mps;            // 部分地図の点群。代表点だけになっている
     for (size_t i=0; i<mps.size(); i++) {
       localMap.emplace_back(mps[i]);
     }
@@ -117,7 +117,7 @@ void PointCloudMapLP::makeLocalMap(){
 
   // 現在の部分地図の代表点を局所地図に入れる
   Submap &curSubmap = submaps.back();              // 現在の部分地図
-  vector<LPoint2D> sps = curSubmap.subsamplePoints(nthre);  // 代表点を得る
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> sps = curSubmap.subsamplePoints(nthre);  // 代表点を得る
   for (size_t i=0; i<sps.size(); i++) {
     localMap.emplace_back(sps[i]);
   }
@@ -128,11 +128,11 @@ void PointCloudMapLP::makeLocalMap(){
 //////////
 
 // ポーズ調整後のロボット軌跡newPoseを用いて、地図を再構築する
-void PointCloudMapLP::remakeMaps(const vector<Pose2D> &newPoses){
+void PointCloudMapLP::remakeMaps(const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses){
   // 各部分地図内の点の位置を修正する
   for (size_t i=0; i<submaps.size(); i++) {
     Submap &submap = submaps[i];
-    vector<LPoint2D> &mps = submap.mps;                // 部分地図の点群。現在地図以外は代表点になっている
+    vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &mps = submap.mps;                // 部分地図の点群。現在地図以外は代表点になっている
     for (size_t j=0; j<mps.size(); j++) {
       LPoint2D &mp = mps[j];
       size_t idx = mp.sid;                             // 点のスキャン番号

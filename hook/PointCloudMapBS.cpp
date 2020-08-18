@@ -25,7 +25,7 @@ void PointCloudMapBS::addPose(const Pose2D &p) {
 }
 
 // スキャン点群の追加
-void PointCloudMapBS::addPoints(const vector<LPoint2D> &lps) {
+void PointCloudMapBS::addPoints(const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) {
   int skip=5;                                       // さすがに重いので、1/5に間引く
 //  int skip=10;                                       // さすがに重いので、1/10に間引く
   for (size_t i=0; i<lps.size(); i+=skip) {
@@ -47,5 +47,5 @@ void PointCloudMapBS::makeLocalMap(){
 ////////
 
 // ダミー
-void PointCloudMapBS::remakeMaps(const vector<Pose2D> &newPoses) {
+void PointCloudMapBS::remakeMaps(const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses) {
 }

@@ -20,11 +20,11 @@ using namespace std;
 /////////
 
 void ScanPointResampler::resamplePoints(Scan2D *scan) {
-  vector<LPoint2D> &lps = scan->lps;           // スキャン点群
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps = scan->lps;           // スキャン点群
   if (lps.size() == 0)
     return;
 
-  vector<LPoint2D> newLps;                     // リサンプル後の点群
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> newLps;                     // リサンプル後の点群
 
   dis = 0;                                     // disは累積距離
   LPoint2D lp = lps[0];

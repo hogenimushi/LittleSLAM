@@ -31,7 +31,7 @@ public:
   }
 
   // 参照スキャンの点rlpsをポインタにしてbaseLpsに入れる
-  virtual void setRefBase(const std::vector<LPoint2D> &rlps) {
+  virtual void setRefBase(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &rlps) {
     baseLps.clear();
     for (size_t i=0; i<rlps.size(); i++)
       baseLps.push_back(&rlps[i]);                // ポインタにして格納

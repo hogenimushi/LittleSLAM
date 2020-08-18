@@ -30,7 +30,7 @@ struct Scan2D
 
   int sid;                                   // スキャンid
   Pose2D pose;                               // スキャン取得時のオドメトリ値
-  std::vector<LPoint2D> lps;                 // スキャン点群
+  std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> lps;                 // スキャン点群
 
   Scan2D() : sid(0) {
   }
@@ -44,7 +44,7 @@ struct Scan2D
     sid = s;
   }
 
-  void setLps (const std::vector<LPoint2D> &ps) {
+  void setLps (const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &ps) {
     lps = ps;
   }
   

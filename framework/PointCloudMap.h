@@ -29,12 +29,12 @@ public:
 
   int nthre;                                       // 格子テーブルセル点数閾値(GTとLPのみ）
 
-  std::vector<Pose2D> poses;                       // ロボット軌跡
+  std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> poses;                       // ロボット軌跡
   Pose2D lastPose;                                 // 最後に推定したロボット位置
   Scan2D lastScan;                                 // 最後に処理したスキャン
 
-  std::vector<LPoint2D> globalMap;                 // 全体地図。間引き後の点
-  std::vector<LPoint2D> localMap;                  // 現在位置近傍の局所地図。スキャンマッチングに使う
+  std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> globalMap;                 // 全体地図。間引き後の点
+  std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> localMap;                  // 現在位置近傍の局所地図。スキャンマッチングに使う
 
   PointCloudMap() : nthre(1) {
     globalMap.reserve(MAX_POINT_NUM);              // 最初に確保
@@ -64,10 +64,10 @@ public:
 /////////////
 
   virtual void addPose(const Pose2D &p) = 0;
-  virtual void addPoints(const std::vector<LPoint2D> &lps) = 0;
+  virtual void addPoints(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) = 0;
   virtual void makeGlobalMap() = 0;
   virtual void makeLocalMap() = 0;
-  virtual void remakeMaps(const std::vector<Pose2D> &newPoses) = 0;
+  virtual void remakeMaps(const std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses) = 0;
 };
 
 #endif

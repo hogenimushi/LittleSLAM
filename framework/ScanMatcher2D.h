@@ -31,6 +31,8 @@
 class ScanMatcher2D
 {
 private:
+  Eigen::Matrix3d cov;                    // ロボット移動量の共分散行列
+  Eigen::Matrix3d totalCov;               // ロボット位置の共分散行列
   int cnt;                                // 論理時刻。スキャン番号に対応
   Scan2D prevScan;                        // 1つ前のスキャン
   Pose2D initPose;                        // 地図の原点の位置。通常(0,0,0)
@@ -46,11 +48,12 @@ private:
   ScanPointAnalyser *spana;               // スキャン点法線計算
   RefScanMaker *rsm;                      // 参照スキャン生成
   PoseFuser *pfu;                         // センサ融合器
-  Eigen::Matrix3d cov;                    // ロボット移動量の共分散行列
-  Eigen::Matrix3d totalCov;               // ロボット位置の共分散行列
 
-  std::vector<PoseCov> poseCovs;          // デバッグ用
-
+  std::vector<PoseCov,Eigen::aligned_allocator<PoseCov>> poseCovs;          // デバッグ用
+ public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  
 public:
   ScanMatcher2D() : cnt(-1), scthre(1.0), nthre(50), dgcheck(false), atd(0), pcmap(nullptr), spres(nullptr), spana(nullptr), estim(nullptr), rsm(nullptr), pfu(nullptr) {
   }
@@ -107,7 +110,7 @@ public:
   }
 
   // デバッグ用
-  std::vector<PoseCov> &getPoseCovs() {
+  std::vector<PoseCov,Eigen::aligned_allocator<PoseCov>> &getPoseCovs() {
     return(poseCovs);
   }
   

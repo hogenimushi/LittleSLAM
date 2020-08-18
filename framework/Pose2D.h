@@ -22,11 +22,12 @@
 
 struct Pose2D
 {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   Eigen::Vector2d trans;
+  Eigen::Matrix2d Rmat;
   //double tx;                           // 並進x
   //double ty;                           // 並進y
   double th;                           // 回転角(度)
-  Eigen::Matrix2d Rmat;
   //double Rmat[2][2];                   // 姿勢の回転行列
 
   Pose2D() :  th(0) {
@@ -114,6 +115,7 @@ struct Pose2D
 
 struct PoseCov
 {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   Pose2D pose;
   Eigen::Matrix3d cov;
 

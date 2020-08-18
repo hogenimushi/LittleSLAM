@@ -30,9 +30,10 @@ enum ptype {UNKNOWN=0, LINE=1, CORNER=2, ISOLATE=3};    // 点のタイプ：未
 
 struct LPoint2D
 {
-  int sid;                 // フレーム番号（スキャン番号）
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   Eigen::Vector2d pos;
   Eigen::Vector2d norm;
+  int sid;                 // フレーム番号（スキャン番号）
   //  double x;                // 位置x
   //  double y;                // 位置y
   //  double nx;               // 法線ベクトル

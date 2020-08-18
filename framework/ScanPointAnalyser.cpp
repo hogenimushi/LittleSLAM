@@ -22,7 +22,7 @@ const double ScanPointAnalyser::FPDMAX = 1.0;
 ///////////
 
 // スキャン点の法線ベクトルを求める。また、直線、コーナ、孤立の場合分けをする。
-void ScanPointAnalyser::analysePoints(vector<LPoint2D> &lps) {
+void ScanPointAnalyser::analysePoints(vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) {
   for (int i=0; i<lps.size(); i++) {
     LPoint2D &lp = lps[i];                        // スキャン点
     ptype type;
@@ -75,7 +75,7 @@ void ScanPointAnalyser::analysePoints(vector<LPoint2D> &lps) {
 }
   
   // 注目点cpの両側の点が、cpからdmin以上dmax以下の場合に、法線を計算する。
-bool ScanPointAnalyser::calNormal(int idx, const vector<LPoint2D> &lps, int dir, Vector2D &normal){
+bool ScanPointAnalyser::calNormal(int idx, const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps, int dir, Vector2D &normal){
   const LPoint2D &cp = lps[idx];                          // 注目点
   for (int i=idx+dir; i>=0 && i<lps.size(); i+=dir) {
     const LPoint2D &lp = lps[i];                          // cpのdir（左か右）側の点
@@ -95,7 +95,7 @@ bool ScanPointAnalyser::calNormal(int idx, const vector<LPoint2D> &lps, int dir,
   return(false);
 }
 
-bool ScanPointAnalyser::calNormal(int idx, const std::vector<LPoint2D> &lps, int dir, Eigen::Vector2d &normal){
+bool ScanPointAnalyser::calNormal(int idx, const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps, int dir, Eigen::Vector2d &normal){
   const LPoint2D &cp = lps[idx];                          // 注目点
   for (int i=idx+dir; i>=0 && i<lps.size(); i+=dir) {
     const LPoint2D &lp = lps[i];                          // cpのdir（左か右）側の点

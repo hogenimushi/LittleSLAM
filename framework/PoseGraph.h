@@ -26,8 +26,9 @@ struct PoseArc;
 // ポーズグラフの頂点
 struct PoseNode
 {
-  int nid;                       // ノードID。PoseGraphのnodesのインデックス（通し番号）
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  
   Pose2D pose;                   // このノードのロボット位置
+  int nid;                       // ノードID。PoseGraphのnodesのインデックス（通し番号）
   std::vector<PoseArc*> arcs;    // このノードにつながるアーク
 
   PoseNode(): nid(-1) {
@@ -66,10 +67,11 @@ struct PoseNode
 // ポーズグラフの辺
 struct PoseArc
 {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  Eigen::Matrix3d inf;                // 情報行列
   PoseNode *src;                      // このアークの始点側のノード
   PoseNode *dst;                      // このアークの終点側のノード
   Pose2D relPose;                     // このアークのもつ相対位置(計測値)
-  Eigen::Matrix3d inf;                // 情報行列
 
   PoseArc(void) : src(nullptr), dst(nullptr){
   }
@@ -98,8 +100,8 @@ class PoseGraph
 {
 private:
   static const int POOL_SIZE=100000;
-  std::vector<PoseNode> nodePool;     // ノード生成用のメモリプール
-  std::vector<PoseArc> arcPool;       // アーク生成用のメモリプール
+  std::vector<PoseNode,Eigen::aligned_allocator<PoseNode>> nodePool;     // ノード生成用のメモリプール
+  std::vector<PoseArc,Eigen::aligned_allocator<PoseNode>> arcPool;       // アーク生成用のメモリプール
 
 public:
   std::vector<PoseNode*> nodes;       // ノードの集合

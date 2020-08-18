@@ -20,7 +20,7 @@ using namespace std;
 ////////
 
 // kslamを用いてポーズグラフpgをポーズ調整し、その結果のロボット軌跡をnewPosesに格納する。
-void P2oDriver2D::doP2o( PoseGraph &pg, vector<Pose2D> &newPoses, int N) {
+void P2oDriver2D::doP2o( PoseGraph &pg, vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses, int N) {
   vector<PoseNode*> &nodes = pg.nodes;                        // ポーズノード
   vector<PoseArc*> &arcs = pg.arcs;                           // ポーズアーク
 

@@ -17,7 +17,7 @@
 using namespace std;
 
 const Scan2D *RefScanMakerBS::makeRefScan() {
-  vector<LPoint2D> &refLps = refScan.lps;         // 参照スキャンの点群のコンテナ
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &refLps = refScan.lps;         // 参照スキャンの点群のコンテナ
   refLps.clear();
 
   Pose2D lastPose = pcmap->getLastPose();         // 点群地図に保存した最後の推定位置
@@ -28,7 +28,7 @@ const Scan2D *RefScanMakerBS::makeRefScan() {
   //  double ty = lastPose.trans(1);
 
   // 点群地図に保存した最後のスキャンを参照スキャンにする
-  const vector<LPoint2D> &lps = pcmap->lastScan.lps;
+  const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps = pcmap->lastScan.lps;
   for (size_t i=0; i<lps.size(); i++) {
     const LPoint2D &mp = lps[i];                  // 参照スキャンの点
 

@@ -21,30 +21,30 @@ using namespace std;
 
 // 地図と軌跡を描画
 void MapDrawer::drawMapGp(const PointCloudMap &pcmap) {
-  const vector<LPoint2D> &lps = pcmap.globalMap;         // 地図の点群
-  const vector<Pose2D> &poses = pcmap.poses;             // ロボット軌跡
+  const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps = pcmap.globalMap;         // 地図の点群
+  const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &poses = pcmap.poses;             // ロボット軌跡
   drawGp(lps, poses);
 }
 
 // スキャン1個を描画
 void MapDrawer::drawScanGp(const Scan2D &scan) {
-  vector<Pose2D> poses;
+  vector<Pose2D,Eigen::aligned_allocator<Pose2D>> poses;
   Pose2D pose;                   // 原点
   poses.emplace_back(pose);      // drawGpを使うためにvectorに入れる
   drawGp(scan.lps, poses);
 }
 
 // ロボット軌跡だけを描画
-void MapDrawer::drawTrajectoryGp(const vector<Pose2D> &poses) {
-  vector<LPoint2D> lps;          // drawGpを使うためのダミー（空）
+void MapDrawer::drawTrajectoryGp(const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &poses) {
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> lps;          // drawGpを使うためのダミー（空）
   drawGp(lps, poses);
 }
 
 //////////
 
-void MapDrawer::drawGp(const vector<LPoint2D> &lps, const vector<Pose2D> &poses, bool flush) {
+void MapDrawer::drawGp(const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps, const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &poses, bool flush) {
   #if SPDLOG_ACTIVE_LEVEL==SPDLOG_LEVEL_INFO
-  //  return;
+  return;
   #endif
   
   printf("drawGp: lps.size=%lu\n", lps.size());     // 点数の確認用

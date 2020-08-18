@@ -59,7 +59,7 @@ public:
 
   void addPoint(const LPoint2D *lp);
   const LPoint2D *findClosestPoint(const LPoint2D *clp, const Pose2D &predPose);
-  void makeCellPoints(int nthre, std::vector<LPoint2D> &ps);
+  void makeCellPoints(int nthre, std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &ps);
 };
 
 #endif

@@ -70,7 +70,7 @@ public:
     dass->setRefBase(r->lps);           // データ対応づけのために参照スキャン点を登録
   }
 
-  void setScanPair(const Scan2D *c, const std::vector<LPoint2D> &refLps) {
+  void setScanPair(const Scan2D *c, const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &refLps) {
     curScan = c;
     dass->setRefBase(refLps);           // データ対応づけのために参照スキャン点を登録
   }

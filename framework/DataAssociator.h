@@ -33,7 +33,7 @@ public:
   ~DataAssociator() {
   }
 
-  virtual void setRefBase(const std::vector<LPoint2D> &lps) = 0;
+  virtual void setRefBase(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) = 0;
   virtual double findCorrespondence(const Scan2D *curScan, const Pose2D &predPose) = 0;
 };
 

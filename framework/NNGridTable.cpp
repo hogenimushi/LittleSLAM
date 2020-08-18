@@ -86,7 +86,7 @@ const LPoint2D *NNGridTable::findClosestPoint(const LPoint2D *clp, const Pose2D 
 ////////////
 
 // 格子テーブルの各セルの代表点を作ってpsに格納する。
-void NNGridTable::makeCellPoints(int nthre, vector<LPoint2D> &ps) {
+void NNGridTable::makeCellPoints(int nthre, vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &ps) {
   // 現状はセル内の各点のスキャン番号の平均をとる。
   // スキャン番号の最新値をとる場合は、その部分のコメントをはずし、
   // 平均とる場合（2行）をコメントアウトする。

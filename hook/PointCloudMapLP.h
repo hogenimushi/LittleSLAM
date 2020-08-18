@@ -27,7 +27,7 @@ struct Submap
   size_t cntS;                              // 部分地図の最初のスキャン番号
   size_t cntE;                              // 部分地図の最後のスキャン番号
 
-  std::vector<LPoint2D> mps;                // 部分地図内のスキャン点群
+  std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> mps;                // 部分地図内のスキャン点群
 
   Submap() : atdS(0), cntS(0), cntE(-1) {
   }
@@ -37,12 +37,12 @@ struct Submap
     cntS = s;
   }
 
-  void addPoints(const std::vector<LPoint2D> &lps) {
+  void addPoints(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) {
     for (size_t i=0; i<lps.size(); i++)
       mps.emplace_back(lps[i]);
   }
 
-  std::vector<LPoint2D> subsamplePoints(int nthre);
+  std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> subsamplePoints(int nthre);
 };
 
 ///////////
@@ -81,10 +81,10 @@ public:
 /////////////
 
   virtual void addPose(const Pose2D &p);
-  virtual void addPoints(const std::vector<LPoint2D> &lps);
+  virtual void addPoints(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps);
   virtual void makeGlobalMap();
   virtual void makeLocalMap();
-  virtual void remakeMaps(const std::vector<Pose2D> &newPoses);
+  virtual void remakeMaps(const std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses);
 
 };
 

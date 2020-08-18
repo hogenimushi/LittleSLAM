@@ -42,7 +42,7 @@ bool SensorDataReader::loadLaserScan(size_t cnt, Scan2D &scan) {
     //    inFile >> sid >> sec >> nsec;        // これらは使わない
     fscanf(inFile,"%d %d %d",&sid, &sec, &nsec);
     
-    vector<LPoint2D> lps;
+    vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> lps;
     int pnum;                            // スキャン点数
     fscanf(inFile,"%d",& pnum);
     lps.reserve(pnum);

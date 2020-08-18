@@ -39,11 +39,11 @@ public:
 /////////////
 
   virtual void addPose(const Pose2D &p);
-  virtual void addPoints(const std::vector<LPoint2D> &lps);
+  virtual void addPoints(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps);
   virtual void makeGlobalMap();
   virtual void makeLocalMap();
-  void subsamplePoints(std::vector<LPoint2D> &sps);
-  virtual void remakeMaps(const std::vector<Pose2D> &newPoses);
+  void subsamplePoints(std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &sps);
+  virtual void remakeMaps(const std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses);
 };
 
 #endif

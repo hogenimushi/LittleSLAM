@@ -105,8 +105,8 @@ void SlamLauncher::mapByOdometry(Scan2D *scan) {
 //  Pose2D &pose = scan->pose;               // スキャン取得時のオドメトリ位置
   Pose2D pose;
   Pose2D::calRelativePose(scan->pose, ipose, pose);
-  vector<LPoint2D> &lps = scan->lps;       // スキャン点群
-  vector<LPoint2D> glps;                   // 地図座標系での点群
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps = scan->lps;       // スキャン点群
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> glps;                   // 地図座標系での点群
   for (size_t j=0; j<lps.size(); j++) {
     LPoint2D &lp = lps[j];
     LPoint2D glp;

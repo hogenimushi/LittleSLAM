@@ -24,7 +24,7 @@
 class SlamBackEnd
 {
 private:
-  std::vector<Pose2D> newPoses;            // ポーズ調整後の姿勢
+  std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> newPoses;            // ポーズ調整後の姿勢
   PointCloudMap *pcmap;                    // 点群地図
   PoseGraph *pg;                           // ポーズグラフ
 

@@ -122,14 +122,14 @@ bool ScanMatcher2D::matchScan(Scan2D &curScan) {
 
 // 現在スキャンを追加して、地図を成長させる
 void ScanMatcher2D::growMap(const Scan2D &scan, const Pose2D &pose) {
-  const vector<LPoint2D> &lps = scan.lps;                // スキャン点群(ロボット座標系)
+  const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps = scan.lps;                // スキャン点群(ロボット座標系)
   const Eigen::Matrix2d    R = pose.Rmat;                      // 推定したロボット位置
 
   Eigen::Vector2d trans = pose.trans;
   //  double tx = pose.trans(0);
   //  double ty = pose.trans(1);
 
-  vector<LPoint2D> scanG;                                // 地図座標系での点群
+  vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> scanG;                                // 地図座標系での点群
   for(size_t i=0; i<lps.size(); i++) {
     const LPoint2D &lp = lps[i];
     if (lp.type == ISOLATE)                              // 孤立点（法線なし）は除外

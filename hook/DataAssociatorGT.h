@@ -32,7 +32,7 @@ public:
   }
   
   // 参照スキャンの点rlpsをポインタにしてnntabに入れる
-  virtual void setRefBase(const std::vector<LPoint2D> &rlps) {
+  virtual void setRefBase(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &rlps) {
     nntab.clear();
     for (size_t i=0; i<rlps.size(); i++) 
       nntab.addPoint(&rlps[i]);              // ポインタにして格納

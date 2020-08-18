@@ -29,7 +29,7 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
   double atd = pcmap->atd;                             // 現在の実際の累積走行距離
   double atdR = 0;                                     // 下記の処理で軌跡をなぞる時の累積走行距離
   const vector<Submap> &submaps = pcmap->submaps;      // 部分地図
-  const vector<Pose2D> &poses = pcmap->poses;          // ロボット軌跡
+  const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &poses = pcmap->poses;          // ロボット軌跡
   double dmin=HUGE_VAL;                                // 前回訪問点までの距離の最小値
   size_t imin=0, jmin=0;                               // 距離最小の前回訪問点のインデックス
   Pose2D prevP;                                        // 直前のロボット位置
@@ -136,7 +136,7 @@ void LoopDetectorSS::makeLoopArc(LoopInfo &info) {
 //////////
 
 // 現在スキャンcurScanと部分地図の点群refLpsでICPを行い、再訪点の位置を求める。
-bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPoint2D> &refLps, const Pose2D &initPose, Pose2D &revisitPose) {
+bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &refLps, const Pose2D &initPose, Pose2D &revisitPose) {
   dass->setRefBase(refLps);                              // データ対応づけ器に参照点群を設定
   cfunc->setEvlimit(0.2);                                // コスト関数の誤差閾値
 
@@ -156,7 +156,7 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
   vector<double> pnrates;
   double scoreMin=1000;
   vector<double> scores;
-  vector<Pose2D> candidates;                             // スコアのよい候補位置
+  vector<Pose2D,Eigen::aligned_allocator<Pose2D>> candidates;                             // スコアのよい候補位置
   for (double dy=-rangeT; dy<=rangeT; dy+=dd) {          // 並進yの探索繰り返し
     double y = initPose.trans(1) + dy;                         // 初期位置に変位分dyを加える
     for (double dx=-rangeT; dx<=rangeT; dx+=dd) {        // 並進xの探索繰り返し

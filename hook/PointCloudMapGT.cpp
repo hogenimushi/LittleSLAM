@@ -25,7 +25,7 @@ void PointCloudMapGT::addPose(const Pose2D &p) {
 }
 
 // 格子テーブルの各セルの代表点を求めてspsに格納する
-void PointCloudMapGT::subsamplePoints(vector<LPoint2D> &sps) {
+void PointCloudMapGT::subsamplePoints(vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &sps) {
   nntab.clear();                            // 格子テーブルの初期化
   for (size_t i=0; i<allLps.size(); i++) 
     nntab.addPoint(&(allLps[i]));           // 全点を格子テーブルに登録
@@ -39,7 +39,7 @@ void PointCloudMapGT::subsamplePoints(vector<LPoint2D> &sps) {
 /////////
 
 // スキャン点群を追加
-void PointCloudMapGT::addPoints(const vector<LPoint2D> &lps) {
+void PointCloudMapGT::addPoints(const vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps) {
   for (size_t i=0; i<lps.size(); i++)
     allLps.emplace_back(lps[i]);
 }
@@ -63,5 +63,5 @@ void PointCloudMapGT::makeLocalMap(){
 ////////
 
 // ダミー
-void PointCloudMapGT::remakeMaps(const vector<Pose2D> &newPoses) {
+void PointCloudMapGT::remakeMaps(const vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &newPoses) {
 }

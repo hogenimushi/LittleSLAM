@@ -90,7 +90,7 @@ public:
   }
 
   // デバッグ用
-  std::vector<PoseCov> &getPoseCovs() {
+  std::vector<PoseCov,Eigen::aligned_allocator<PoseCov>> &getPoseCovs() {
     return(smat->getPoseCovs());
   }
 

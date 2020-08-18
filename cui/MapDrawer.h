@@ -91,7 +91,7 @@ public:
 
   void drawMapGp(const PointCloudMap &pcmap);
   void drawScanGp(const Scan2D &scan);
-  void drawTrajectoryGp(const std::vector<Pose2D> &poses);
-  void drawGp(const std::vector<LPoint2D> &lps, const std::vector<Pose2D> &poses, bool flush=true);
+  void drawTrajectoryGp(const std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &poses);
+  void drawGp(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &lps, const std::vector<Pose2D,Eigen::aligned_allocator<Pose2D>> &poses, bool flush=true);
 };
 

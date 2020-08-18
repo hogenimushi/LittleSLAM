@@ -50,7 +50,7 @@ public:
     dass->setRefBase(refScan->lps);
   }
 
-  void setRefLps(const std::vector<LPoint2D> &refLps) {
+  void setRefLps(const std::vector<LPoint2D,Eigen::aligned_allocator<LPoint2D>> &refLps) {
     dass->setRefBase(refLps);
   }
 

@@ -1,7 +1,7 @@
 project(LittleSLAM)
 
 # SIMDにするとき
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -march=native")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -march=native ")
 
 # SIMDにしないとき
 #set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -g")

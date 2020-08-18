@@ -148,7 +148,7 @@ void SlamLauncher::showScans() {
  
     // 描画間隔をあける
 #ifdef _WIN32
-    Sleep(100);                            // WindowsではSleep
+    //    Sleep(100);                            // WindowsではSleep
 #elif __linux__
     //    usleep(100000);                        // Linuxではusleep
 #endif

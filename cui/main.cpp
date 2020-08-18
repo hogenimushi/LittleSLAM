@@ -15,6 +15,8 @@
 #include "SlamLauncher.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "eigensetting.h"
+#include <Eigen/Core>
 
 int main(int argc, char *argv[]) {
   bool scanCheck=false;              // スキャン表示のみか
@@ -63,6 +65,9 @@ int main(int argc, char *argv[]) {
   logger->info("SlamLauncher: startN={}, scanCheck={}, odometryOnly={}\n", startN, scanCheck, odometryOnly);
   logger->info("filename={}\n", filename);
 
+  // Eigen setting
+  //Eigen::initParallel();
+  
   // ファイルを開く
   SlamLauncher sl;
   bool flag = sl.setFilename(filename);

@@ -48,7 +48,7 @@ bool LoopDetectorSS::detectLoop(Scan2D *curScan, Pose2D &curPose, int cnt) {
 
       //      double d = (curPose.trans(0) - p.trans(0))*(curPose.trans(0) - p.trans(0)) +
       //	(curPose.trans(1) - p.trans(1))*(curPose.trans(1) - p.trans(1));
-      double d = (curPose.trans - p.trans).norm();
+      double d = (curPose.trans - p.trans).squaredNorm();
       if (d < dmin) {                                  // 現在位置とpとの距離がこれまでの最小か
         dmin = d;
         imin = i;                                      // 候補となる部分地図のインデックス

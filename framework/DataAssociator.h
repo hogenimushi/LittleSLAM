@@ -24,9 +24,11 @@
 class DataAssociator
 {
 public:
-  std::vector<const LPoint2D*> curLps;            // 対応がとれた現在スキャンの点群
-  std::vector<const LPoint2D*> refLps;            // 対応がとれた参照スキャンの点群
+  //  std::vector<const LPoint2D*> curLps;            // 対応がとれた現在スキャンの点群
+  //  std::vector<const LPoint2D*> refLps;            // 対応がとれた参照スキャンの点群
 
+  std::vector<std::pair<const LPoint2D*,const LPoint2D*>> lps;
+  
   DataAssociator() {
   }
 

@@ -59,7 +59,7 @@ public:
     dass->findCorrespondence(curScan, estMotion);
 
     // ICPの共分散。ここで得られるのは、世界座標系での共分散
-    double ratio = cvc.calIcpCovariance(estMotion, dass->curLps, dass->refLps, cov);
+    double ratio = cvc.calIcpCovariance(estMotion, dass->lps, cov);
     return(ratio);
   }
 

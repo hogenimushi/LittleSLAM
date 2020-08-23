@@ -52,8 +52,8 @@ public:
     cfunc->setEvlimit(l);
   }
 
-  void setPoints(std::vector<const LPoint2D*> &curLps, std::vector<const LPoint2D*> &refLps) {
-    cfunc->setPoints(curLps, refLps);
+  void setPoints(std::vector<std::pair<const LPoint2D*,const LPoint2D*>> &lps) {
+    cfunc->setPoints(lps);
   }
 
   void setEvthre(double inthre) {

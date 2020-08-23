@@ -43,7 +43,7 @@ public:
 
 ////////
 
-  double calIcpCovariance(const Pose2D &pose, std::vector<const LPoint2D*> &curLps, std::vector<const LPoint2D*> &refLps, Eigen::Matrix3d &cov);
+  double calIcpCovariance(const Pose2D &pose, std::vector<std::pair<const LPoint2D*,const LPoint2D*>> &lps, Eigen::Matrix3d &cov);
   double calPDistance(const LPoint2D *clp, const LPoint2D *rlp, double tx, double ty, double th);
 
   void calMotionCovarianceSimple(const Pose2D &motion, double dT, Eigen::Matrix3d &cov);

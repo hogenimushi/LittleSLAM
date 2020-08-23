@@ -22,9 +22,9 @@ double CostFunctionED::calValue(double tx, double ty, double th) {
   double error=0;
   int pn=0;
   int nn=0;
-  for (size_t i=0; i<curLps.size(); i++) {
-    const LPoint2D *clp = curLps[i];             // 現在スキャンの点
-    const LPoint2D *rlp = refLps[i];             // clpに対応する参照スキャンの点
+  for (size_t i=0; i<lps.size(); i++) {
+    const LPoint2D *clp = lps[i].first;             // 現在スキャンの点
+    const LPoint2D *rlp = lps[i].second;             // clpに対応する参照スキャンの点
 
     double cx = clp->x;
     double cy = clp->y;

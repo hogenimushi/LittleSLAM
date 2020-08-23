@@ -21,7 +21,7 @@ using namespace std;
 
 // ICPによるロボット位置の推定値の共分散covを求める。
 // 推定位置pose、現在スキャン点群curLps、参照スキャン点群refLps
-double CovarianceCalculator::calIcpCovariance(const Pose2D &pose, std::vector<const LPoint2D*> &curLps, std::vector<const LPoint2D*> &refLps, Eigen::Matrix3d &cov) {
+double CovarianceCalculator::calIcpCovariance(const Pose2D &pose, std::vector<pair<const LPoint2D*,const LPoint2D*>> &lps, Eigen::Matrix3d &cov) {
   double tx = pose.tx;
   double ty = pose.ty;
   double th = pose.th;
@@ -30,9 +30,9 @@ double CovarianceCalculator::calIcpCovariance(const Pose2D &pose, std::vector<co
   vector<double> Jy;                                         // ヤコビ行列のyの列
   vector<double> Jt;                                         // ヤコビ行列のthの列
 
-  for (size_t i=0; i<curLps.size(); i++) {
-    const LPoint2D *clp = curLps[i];                         // 現在スキャンの点
-    const LPoint2D *rlp = refLps[i];                         // 参照スキャンの点
+  for (size_t i=0; i<lps.size(); i++) {
+    const LPoint2D *clp = lps[i].first;                         // 現在スキャンの点
+    const LPoint2D *rlp = lps[i].second;                         // 参照スキャンの点
 
     if (rlp->type == ISOLATE)                                // 孤立点は除外
       continue;

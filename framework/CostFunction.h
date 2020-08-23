@@ -24,8 +24,10 @@
 class CostFunction
 {
 protected:
-  std::vector<const LPoint2D*> curLps;         // 対応がとれた現在スキャンの点群
-  std::vector<const LPoint2D*> refLps;         // 対応がとれた参照スキャンの点群
+  //  std::vector<const LPoint2D*> curLps;         // 対応がとれた現在スキャンの点群
+  //  std::vector<const LPoint2D*> refLps;         // 対応がとれた参照スキャンの点群
+  std::vector<std::pair<const LPoint2D*, const LPoint2D*>> lps;
+
   double evlimit;                              // マッチングで対応がとれたと見なす距離閾値
   double pnrate;                               // 誤差がevlimit以内で対応がとれた点の比率
 
@@ -43,9 +45,10 @@ public:
   }
 
   // DataAssociatorで対応のとれた点群cur, refを設定
-  void setPoints(std::vector<const LPoint2D*> &cur, std::vector<const LPoint2D*> &ref) {
-    curLps = cur;
-    refLps = ref;
+  void setPoints(std::vector<std::pair<const LPoint2D*,const LPoint2D*>> &lps) {
+    this->lps = lps;
+    //curLps = cur;
+    //refLps = ref;
   }
 
   double getPnrate() {

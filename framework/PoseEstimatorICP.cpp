@@ -39,7 +39,7 @@ double PoseEstimatorICP::estimatePose(Pose2D &initPose, Pose2D &estPose){
       evold = ev;
     double mratio = dass->findCorrespondence(curScan, pose);      // データ対応づけ
     Pose2D newPose;
-    popt->setPoints(dass->curLps, dass->refLps);                  // 対応結果を渡す
+    popt->setPoints(dass->lps);                  // 対応結果を渡す
     ev = popt->optimizePose(pose, newPose);                       // その対応づけにおいてロボット位置の最適化
     pose = newPose;
 
@@ -54,7 +54,7 @@ double PoseEstimatorICP::estimatePose(Pose2D &initPose, Pose2D &estPose){
   }
 
   pnrate = popt->getPnrate();
-  usedNum = dass->curLps.size();
+  usedNum = dass->lps.size();
 
   estPose = poseMin;
 

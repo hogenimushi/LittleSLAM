@@ -161,11 +161,11 @@ bool LoopDetectorSS::estimateRevisitPose(const Scan2D *curScan, const vector<LPo
         double th = MyUtil::add(initPose.th, dth);       // 初期位置に変位分dthを加える
         Pose2D pose(x, y, th);
         double mratio = dass->findCorrespondence(curScan, pose);   // 位置poseでデータ対応づけ
-        size_t usedNum = dass->curLps.size();
+        size_t usedNum = dass->lps.size();
 //        printf("usedNum=%lu, mratio=%g\n", usedNum, mratio);          // 確認用
         if (usedNum < usedNumMin || mratio < 0.9)        // 対応率が悪いと飛ばす
           continue;
-        cfunc->setPoints(dass->curLps, dass->refLps);    // コスト関数に点群を設定
+        cfunc->setPoints(dass->lps);    // コスト関数に点群を設定
         double score =  cfunc->calValue(x, y, th);       // コスト値（マッチングスコア）
         double pnrate = cfunc->getPnrate();              // 詳細な点の対応率
 //        printf("score=%g, pnrate=%g\n", score, pnrate);                    // 確認用

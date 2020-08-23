@@ -23,27 +23,32 @@ double CostFunctionPD::calValue(double tx, double ty, double th) {
   double error=0;
   int pn=0;
   int nn=0;
-  for (size_t i=0; i<curLps.size(); i++) {
-    const LPoint2D *clp = curLps[i];             // 現在スキャンの点
-    const LPoint2D *rlp = refLps[i];             // clpに対応する参照スキャンの点
 
-    if (rlp->type != LINE)                       // 直線上の点でなければ使わない
-      continue;
- 
-    double cx = clp->x;
-    double cy = clp->y;
-    double x = cos(a)*cx - sin(a)*cy + tx;       // clpを参照スキャンの座標系に変換
-    double y = sin(a)*cx + cos(a)*cy + ty;
-
-    double pdis = (x - rlp->x)*rlp->nx + (y - rlp->y)*rlp->ny;         // 垂直距離
-
-    double er = pdis*pdis;
-    if (er <= evlimit*evlimit)
-      ++pn;                                      // 誤差が小さい点の数
-
-    error += er;                                 // 各点の誤差を累積
-    ++nn;
-  }
+  #pragma omp parallel
+  {
+    #pragma omp for nowait schedule(static) reduction(+:pn) reduction(+:nn) reduction(+:error)
+    for (size_t i=0; i<lps.size(); i++) {
+      const LPoint2D *clp = lps[i].first;             // 現在スキャンの点
+      const LPoint2D *rlp = lps[i].second;             // clpに対応する参照スキャンの点
+      
+      if (rlp->type != LINE)                       // 直線上の点でなければ使わない
+	continue;
+      
+      double cx = clp->x;
+      double cy = clp->y;
+      double x = cos(a)*cx - sin(a)*cy + tx;       // clpを参照スキャンの座標系に変換
+      double y = sin(a)*cx + cos(a)*cy + ty;
+      
+      double pdis = (x - rlp->x)*rlp->nx + (y - rlp->y)*rlp->ny;         // 垂直距離
+      
+      double er = pdis*pdis;
+      if (er <= evlimit*evlimit)
+	++pn;                                      // 誤差が小さい点の数
+      
+      error += er;                                 // 各点の誤差を累積
+      ++nn;
+    }
+  } // end parallel
 
   error = (nn>0)? error/nn : HUGE_VAL;           // 有効点数が0なら、値はHUGE_VAL
   pnrate = 1.0*pn/nn;                            // 誤差が小さい点の比率

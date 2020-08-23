@@ -23,7 +23,7 @@ using namespace std;
 double PoseFuser::fusePose(Scan2D *curScan, const Pose2D &estPose, const Pose2D &odoMotion, const Pose2D &lastPose, Pose2D &fusedPose, Eigen::Matrix3d &fusedCov) {
   // ICPの共分散
   dass->findCorrespondence(curScan, estPose);                                      // 推定位置estPoseで現在スキャン点群と参照スキャン点群の対応づけ
-  double ratio = cvc.calIcpCovariance(estPose, dass->curLps, dass->refLps, ecov);  // ここで得られるのは、地図座標系での位置の共分散
+  double ratio = cvc.calIcpCovariance(estPose, dass->lps, ecov);  // ここで得られるのは、地図座標系での位置の共分散
 
   // オドメトリの位置と共分散。速度運動モデルを使うと、短期間では共分散が小さすぎるため、簡易版で大きめに計算する
   Pose2D predPose;                                                                 // 予測位置

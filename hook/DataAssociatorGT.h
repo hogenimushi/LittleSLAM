@@ -39,7 +39,6 @@ public:
   }
 
 /////////
-
   virtual double findCorrespondence(const Scan2D *curScan, const Pose2D &predPose);
 };
 

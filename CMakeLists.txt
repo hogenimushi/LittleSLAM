@@ -1,6 +1,6 @@
 project(LittleSLAM)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -pg")
 
 #if(UNIX)
 #  include(CheckCXXCompilerFlag)

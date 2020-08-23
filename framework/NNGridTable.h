@@ -15,13 +15,15 @@
 #ifndef _NN_GRID_TABLE_H_
 #define _NN_GRID_TABLE_H_
 
+#include <iostream>
 #include <vector>
+#include <queue>
 #include "MyUtil.h"
 #include "Pose2D.h"
 
 struct NNGridCell
 {
-  std::vector<const LPoint2D*> lps;         // このセルに格納されたスキャン点群
+  std::list<const LPoint2D*> lps;         // このセルに格納されたスキャン点群
 
   void clear() {
     lps.clear();                            // 空にする
@@ -45,6 +47,7 @@ public:
     size_t w = static_cast<int>(2*tsize+1);          // テーブルサイズ
     table.resize(w*w);                               // 領域確保
     clear();                                         // tableの初期化
+    std::cout << "***called!!!!" << std::endl;
   }
 
   ~NNGridTable() {
@@ -58,6 +61,7 @@ public:
 ////////////
 
   void addPoint(const LPoint2D *lp);
+  void addPointList(const std::vector<LPoint2D> &lps);
   const LPoint2D *findClosestPoint(const LPoint2D *clp, const Pose2D &predPose);
   void makeCellPoints(int nthre, std::vector<LPoint2D> &ps);
 };

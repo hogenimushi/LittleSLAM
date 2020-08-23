@@ -29,7 +29,7 @@ void NNGridTable::addPoint(const LPoint2D *lp) {
     return;
 
   size_t idx = static_cast<size_t>(yi*(2*tsize +1) + xi);   // テーブルのインデックス
-  table[idx].lps.push_back(lp);                             // 目的のセルに入れる
+  table[idx].lps.push_front(lp);                             // 目的のセルに入れる
 }
 
 ///////////
@@ -65,9 +65,9 @@ const LPoint2D *NNGridTable::findClosestPoint(const LPoint2D *clp, const Pose2D 
 
       size_t idx = yi*(2*tsize+1) + xi;             // テーブルインデックス
       NNGridCell &cell = table[idx];                // そのセル
-      vector<const LPoint2D*> &lps = cell.lps;      // セルがもつスキャン点群
-      for (size_t k=0; k<lps.size(); k++) {
-        const LPoint2D *lp = lps[k];
+      list<const LPoint2D*> &lps = cell.lps;      // セルがもつスキャン点群
+      for (auto k=lps.begin(); k!=lps.end(); ++k) {
+        const LPoint2D *lp = *k;
         double d = (lp->x - glp.x)*(lp->x - glp.x) + (lp->y - glp.y)*(lp->y - glp.y);
 
         if (d <= dthre*dthre && d < dmin) {         // dthre内で距離が最小となる点を保存
@@ -93,14 +93,14 @@ void NNGridTable::makeCellPoints(int nthre, vector<LPoint2D> &ps) {
 
   size_t nn=0;                           // テーブル内の全セル数。確認用
   for (size_t i=0; i<table.size(); i++) {
-    vector<const LPoint2D*> &lps = table[i].lps;      // セルのスキャン点群
+    list<const LPoint2D*> &lps = table[i].lps;      // セルのスキャン点群
     nn += lps.size();
     if (lps.size() >= nthre) {           // 点数がnthreより多いセルだけ処理する
       double gx=0, gy=0;                 // 点群の重心位置
       double nx=0, ny=0;                 // 点群の法線ベクトルの平均
       int sid=0;
-      for (size_t j=0; j<lps.size(); j++) {
-        const LPoint2D *lp = lps[j];
+      for (auto j=lps.begin(); j!=lps.end(); ++j) {
+        const LPoint2D *lp = *j;
         gx += lp->x;                     // 位置を累積
         gy += lp->y;
         nx += lp->nx;                    // 法線ベクトル成分を累積

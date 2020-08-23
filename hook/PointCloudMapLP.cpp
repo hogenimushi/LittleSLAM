@@ -24,7 +24,8 @@ double PointCloudMapLP::atdThre = 10;
 
 // 格子テーブルを用いて、部分地図の代表点を得る
 vector<LPoint2D> Submap::subsamplePoints(int nthre) {
-  NNGridTable nntab;                     // 格子テーブル
+  static NNGridTable nntab;                     // 格子テーブル
+  nntab.clear();
   for (size_t i=0; i<mps.size(); i++) {
     LPoint2D &lp = mps[i];
     nntab.addPoint(&lp);                 // 全点を登録

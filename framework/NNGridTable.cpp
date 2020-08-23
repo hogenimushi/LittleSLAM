@@ -92,37 +92,94 @@ void NNGridTable::makeCellPoints(int nthre, vector<LPoint2D> &ps) {
   // 平均とる場合（2行）をコメントアウトする。
 
   size_t nn=0;                           // テーブル内の全セル数。確認用
-  for (size_t i=0; i<table.size(); i++) {
-    vector<const LPoint2D*> &lps = table[i].lps;      // セルのスキャン点群
-    nn += lps.size();
-    if (lps.size() >= nthre) {           // 点数がnthreより多いセルだけ処理する
-      double gx=0, gy=0;                 // 点群の重心位置
-      double nx=0, ny=0;                 // 点群の法線ベクトルの平均
-      int sid=0;
-      for (size_t j=0; j<lps.size(); j++) {
-        const LPoint2D *lp = lps[j];
-        gx += lp->x;                     // 位置を累積
-        gy += lp->y;
-        nx += lp->nx;                    // 法線ベクトル成分を累積
-        ny += lp->ny;
-        sid += lp->sid;                  // スキャン番号の平均とる場合
+  {
+    for (size_t i=0; i<table.size(); i++) {
+      vector<const LPoint2D*> &lps = table[i].lps;      // セルのスキャン点群
+      nn += lps.size();
+      if (lps.size() >= nthre) {           // 点数がnthreより多いセルだけ処理する
+	double gx=0, gy=0;                 // 点群の重心位置
+	double nx=0, ny=0;                 // 点群の法線ベクトルの平均
+	int sid=0;
+	for (size_t j=0; j<lps.size(); j++) {
+	  const LPoint2D *lp = lps[j];
+	  gx += lp->x;                     // 位置を累積
+	  gy += lp->y;
+	  nx += lp->nx;                    // 法線ベクトル成分を累積
+	  ny += lp->ny;
+	  sid += lp->sid;                  // スキャン番号の平均とる場合
 //        if (lp->sid > sid)             // スキャン番号の最新値とる場合
 //          sid = lp->sid;
 //        printf("sid=%d\n", lp->sid);
+	}
+	gx /= lps.size();                  // 平均
+	gy /= lps.size();
+	double L = sqrt(nx*nx + ny*ny);
+	nx /=  L;                          // 平均（正規化）
+	ny /=  L;
+	sid /= lps.size();                 // スキャン番号の平均とる場合
+	
+	LPoint2D newLp(sid, gx, gy);       // セルの代表点を生成
+	newLp.setNormal(nx, ny);           // 法線ベクトル設定
+	newLp.setType(LINE);               // タイプは直線にする
+	ps.emplace_back(newLp);            // psに追加
       }
-      gx /= lps.size();                  // 平均
-      gy /= lps.size();
-      double L = sqrt(nx*nx + ny*ny);
-      nx /=  L;                          // 平均（正規化）
-      ny /=  L;
-      sid /= lps.size();                 // スキャン番号の平均とる場合
-
-      LPoint2D newLp(sid, gx, gy);       // セルの代表点を生成
-      newLp.setNormal(nx, ny);           // 法線ベクトル設定
-      newLp.setType(LINE);               // タイプは直線にする
-      ps.emplace_back(newLp);            // psに追加
     }
-  }
+  }// end parallel
 
 //  printf("nn=%d\n", nn);               // テーブル内の全セル数。確認用
 }
+
+
+#if 0
+void NNGridTable::makeCellPoints(int nthre, vector<LPoint2D> &ps) {
+  // 現状はセル内の各点のスキャン番号の平均をとる。
+  // スキャン番号の最新値をとる場合は、その部分のコメントをはずし、
+  // 平均とる場合（2行）をコメントアウトする。
+
+  size_t nn=0;                           // テーブル内の全セル数。確認用
+  #pragma omp parallel
+  {
+    vector<LPoint2D> ps_private;
+    #pragma omp for nowait 
+    for (size_t i=0; i<table.size(); i++) {
+      vector<const LPoint2D*> &lps = table[i].lps;      // セルのスキャン点群
+      nn += lps.size();
+      if (lps.size() >= nthre) {           // 点数がnthreより多いセルだけ処理する
+	double gx=0, gy=0;                 // 点群の重心位置
+	double nx=0, ny=0;                 // 点群の法線ベクトルの平均
+	int sid=0;
+	for (size_t j=0; j<lps.size(); j++) {
+	  const LPoint2D *lp = lps[j];
+	  gx += lp->x;                     // 位置を累積
+	  gy += lp->y;
+	  nx += lp->nx;                    // 法線ベクトル成分を累積
+	  ny += lp->ny;
+	  sid += lp->sid;                  // スキャン番号の平均とる場合
+//        if (lp->sid > sid)             // スキャン番号の最新値とる場合
+//          sid = lp->sid;
+//        printf("sid=%d\n", lp->sid);
+	}
+	gx /= lps.size();                  // 平均
+	gy /= lps.size();
+	double L = sqrt(nx*nx + ny*ny);
+	nx /=  L;                          // 平均（正規化）
+	ny /=  L;
+	sid /= lps.size();                 // スキャン番号の平均とる場合
+	
+	LPoint2D newLp(sid, gx, gy);       // セルの代表点を生成
+	newLp.setNormal(nx, ny);           // 法線ベクトル設定
+	newLp.setType(LINE);               // タイプは直線にする
+	ps_private.emplace_back(newLp);            // psに追加
+      }
+    }
+    #pragma omp for schedule(static) ordered 
+    for(int i=0; i<omp_get_num_threads(); ++i){
+      #pragma omp ordered
+      ps.insert(ps.end(), ps_private.begin(),ps_private.end());
+    }
+  }// end parallel
+
+//  printf("nn=%d\n", nn);               // テーブル内の全セル数。確認用
+}
+
+#endif

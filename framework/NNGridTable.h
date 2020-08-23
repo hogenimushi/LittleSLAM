@@ -23,7 +23,7 @@
 
 struct NNGridCell
 {
-  std::list<const LPoint2D*> lps;         // このセルに格納されたスキャン点群
+  std::vector<const LPoint2D*> lps;         // このセルに格納されたスキャン点群
 
   void clear() {
     lps.clear();                            // 空にする
